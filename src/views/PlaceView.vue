@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Place from '@/components/Place.vue'
+import Map from '@/components/Map.vue'
 </script>
 
 <template>
   <main>
-    <Place />
+    <Map />
   </main>
 </template>
