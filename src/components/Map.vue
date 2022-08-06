@@ -23,16 +23,33 @@
     const mapSts = useMapStore();
     const colorsSts = useColorsStore();
 
+    var canvas: HTMLCanvasElement;
+    var ctx: CanvasRenderingContext2D | null;
 
     // Document ready
     $(function() {
+        canvas = <HTMLCanvasElement>$('#place')[0];
+        ctx = canvas.getContext('2d');
 
+        /* TEMP */
+        canvas.width = 2000;
+        canvas.height = 2000;
+        // @ts-ignore
+        ctx.fillStyle = 'white';
+        // @ts-ignore
+        ctx.fillRect(0, 0, 2000, 2000);
+        // @ts-ignore
+        ctx.fillStyle = 'green';
+        // @ts-ignore
+        ctx.fillRect(1980, 1000, 20, 20);
+        // @ts-ignore
+        ctx.fillRect(0, 1000, 20, 20);
+        /* END TEMP */
 
         // INIT SOCKET CONNEXION
         const socket = io(`http://${import.meta.env.VITE_APP_BACKEND_URL}`, {
             extraHeaders: HEADERS
         });
-
 
 
         // GET MAP + USER SPECS
@@ -59,7 +76,7 @@
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
-                router.push('/login');
+                // router.push('/login');
             }
         });
 
@@ -77,14 +94,42 @@
         });
 
 
+        // MOUSE CONTROL
+        const zoomElement = $('#place');
+        let zoom = 30;
+        let translationX = 0;
+        let translationY = 0;
+        zoomElement.css('transform', `scale(${zoom}%`);
+        canvas.addEventListener('wheel', function (e: WheelEvent) {
+            const centerX = window.innerWidth/2;
+            const centerY = window.innerHeight/2;
+
+            console.log('----');
+            console.log(e.clientX);
+            console.log(window.innerWidth/2);
+            translationX += ((centerX - e.clientX) / window.innerWidth) * 100;
+            translationY += ((centerY - e.clientY) / window.innerHeight) * 100;
+            console.log(translationX);
+            if (e.deltaY > 0) {
+                // Zoom out
+                if (zoom > 30) {
+                    zoomElement.css('transform', `translate(${translationX}%, ${translationY}%) scale(${zoom -= 30}%)`);
+                } else {
+                    zoomElement.css('transform', `scale(${zoom}%)`);
+                }
+            } else {
+                // Zoom in
+                if (zoom < 240) {
+                    zoomElement.css('transform', `translate(${translationX}%, ${translationY}%) scale(${zoom += 10}%)`);
+                }
+            }
+        });
+
 
     });
 
 
     function setMap(width: number, map: []) {
-        var canvas = <HTMLCanvasElement>$('#place')[0];
-        var ctx = canvas.getContext('2d');
-
         canvas.width = width * 10;
         canvas.height = width * 10;
 
@@ -126,11 +171,31 @@
 
 <template>
 
-    <canvas id="place" height="200" width="200"></canvas>
-
+<div id="screen">
+    <div id="parent-canvas">
+        <canvas id="place"></canvas>
+    </div>
+</div>
 
 </template>
 
 <style scoped>
+
+#screen {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+}
+
+#parent-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#place {
+    image-rendering: pixelated;
+}
 
 </style>
