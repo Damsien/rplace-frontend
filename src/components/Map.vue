@@ -9,6 +9,7 @@
     import $ from 'jquery';
     import io from "socket.io-client";
     import { refreshToken } from '@/auth.js';
+    // https://github.com/thecodealer/vue-panzoom
 
     const TOKEN = localStorage.getItem('ACCESS_TOKEN');
     const HEADERS = {
