@@ -41,9 +41,9 @@
         // @ts-ignore
         ctx.fillStyle = 'green';
         // @ts-ignore
-        ctx.fillRect(1980, 1000, 20, 20);
+        ctx.fillRect(1990, 1000, 10, 10);
         // @ts-ignore
-        ctx.fillRect(0, 1000, 20, 20);
+        ctx.fillRect(0, 1000, 10, 10);
         /* END TEMP */
 
         // INIT SOCKET CONNEXION
@@ -95,11 +95,12 @@
 
 
         // MOUSE CONTROL
-        const zoomElement = $('#place');
-        let zoom = 30;
+        const parent = $('#parent-canvas');
+        const rplace = $('#place');
+        let zoom = 0.3;
         let translationX = 0;
         let translationY = 0;
-        zoomElement.css('transform', `scale(${zoom}%`);
+        // zoomElement.css('transform', `scale(${zoom}%`);
         canvas.addEventListener('wheel', function (e: WheelEvent) {
             const centerX = window.innerWidth/2;
             const centerY = window.innerHeight/2;
@@ -107,20 +108,34 @@
             console.log('----');
             console.log(e.clientX);
             console.log(window.innerWidth/2);
-            translationX += ((centerX - e.clientX) / window.innerWidth) * 100;
-            translationY += ((centerY - e.clientY) / window.innerHeight) * 100;
-            console.log(translationX);
+            console.log(window.innerWidth);
+            console.log(zoom);
+            translationX += (centerX - e.clientX);
+            translationY += (centerY - e.clientY);
             if (e.deltaY > 0) {
                 // Zoom out
-                if (zoom > 30) {
-                    zoomElement.css('transform', `translate(${translationX}%, ${translationY}%) scale(${zoom -= 30}%)`);
+                if (zoom > 0.3) {
+                    switch (zoom) {
+                        case 0.3: translationX *= (3 + 1/3); translationY *= (3 + 1/3); break;
+                        case 1.3: translationX *= (1 - 1/295); translationY *= (1 - 1/295); break;
+                    }
+                    rplace.css('transform', `translate(${translationX}px, ${translationY}px)`);
+                    parent.css('transform', `translate(-50%, -50%) scale(${zoom -= 2})`)
+                    // zoomElement.css('transform', `scale(${zoom -= 30}%)`);
                 } else {
-                    zoomElement.css('transform', `scale(${zoom}%)`);
+                    rplace.css('transform', '');
+                    parent.css('transform', `translate(-50%, -50%) scale(0.3)`);
                 }
             } else {
                 // Zoom in
-                if (zoom < 240) {
-                    zoomElement.css('transform', `translate(${translationX}%, ${translationY}%) scale(${zoom += 10}%)`);
+                if (zoom <= 2.3) {
+                    switch (zoom) {
+                        case 0.3: translationX *= (3 + 1/3); translationY *= (3 + 1/3); break;
+                        case 1.3: translationX *= (1 - 1/295); translationY *= (1 - 1/295); break;
+                    }
+                    rplace.css('transform', `translate(${translationX}px, ${translationY}px)`);
+                    parent.css('transform', `translate(-50%, -50%) scale(${zoom += 1})`)
+                    // zoomElement.css('transform', `scale(${zoom += 30}%)`);
                 }
             }
         });
@@ -191,7 +206,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0.3);
 }
 
 #place {
