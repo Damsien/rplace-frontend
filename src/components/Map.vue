@@ -187,21 +187,13 @@
 
 <template>
 
-<div id="screen">
     <div id="parent-canvas">
         <canvas id="place"></canvas>
     </div>
-</div>
 
 </template>
 
 <style scoped>
-
-#screen {
-    position: relative;
-    width: 100%;
-    min-height: 100vh;
-}
 
 #parent-canvas {
     position: absolute;

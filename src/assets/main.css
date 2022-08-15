@@ -1,9 +1,11 @@
 @import "./base.css";
 
+input, button { all: unset;border:none; } 
+
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Hide scrollbars */
+  background-color: #3a3a3a;
 }
 
 #app {
