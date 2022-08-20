@@ -13,7 +13,7 @@
     $(function () {
 
         /*      PROFILE PIC     */
-        var imgUrl = "https://avatars.dicebear.com/api/pixel-art/edzedezze.svg";
+        var imgUrl = "https://avatars.dicebear.com/api/pixel-art/ddassdeferfb.svg";
         $('#profile-svg').attr('src', imgUrl);
         $('#pic').on('click', function() {
             $("#liveToast").show();

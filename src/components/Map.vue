@@ -170,7 +170,6 @@
                 if (panStacking > 80) {
                     instance.moveTo(selector.x ?? 0, selector.y ?? 0);
                 }
-                console.log(panStacking)
             }
         });
         instance.on('panstart', function(e) {
