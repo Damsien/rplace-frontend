@@ -152,36 +152,29 @@
                 return false;
             }
         });
+        var panStacking = 0;
         var isPanning = false;
         var canvaSize;
         var right;
         var left;
         var top;
         var bot;
-        // var oldX;
-        // var oldY;
         instance.on('pan', function(e) {
             canvaSize = canvas.getBoundingClientRect();
             right = Math.round(canvaSize.right-(window.innerWidth/2));
             left = Math.round((window.innerWidth/2)-(canvaSize.right-canvaSize.width));
             top = Math.round((window.innerHeight/2)-canvaSize.top);
             bot = Math.round((canvaSize.top+canvaSize.height)-(window.innerHeight/2));
-            // if (instance.isPaused()) {
-            //     instance.resume();
-            //     instance.moveTo(1000, oldY);
-            // }
             if (right < 0 || left < 0 || top < 0 || bot < 0) {
-                console.log('overflow');
+                panStacking++;
+                if (panStacking > 80) {
+                    instance.moveTo(selector.x ?? 0, selector.y ?? 0);
+                }
+                console.log(panStacking)
             }
-            // else {
-            //     oldX = Math.round(e.getTransform().x);
-            //     oldY = Math.round(e.getTransform().y);
-            //     if (!Number.isInteger(e.getTransform().x) || !Number.isInteger(e.getTransform().y)) {
-            //         instance.moveTo(oldX, oldY);
-            //     }
-            // }
         });
         instance.on('panstart', function(e) {
+            panStacking = 0;
             isPanning = true;
         });
         instance.on('panend', function(e) {
