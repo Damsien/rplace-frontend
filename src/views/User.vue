@@ -24,13 +24,7 @@
         });
 
 
-        /*      GOLD NAME       */
-        if(true) {
-            $('#username').css('color', '#F1BD09');
-        }
-
-
-        var pixelsPlaced = 1013;
+        var pixelsPlaced = 678;
         /*      PIXELS PLACES   */
         $('#pixelsPlaced').text(pixelsPlaced);
 
@@ -39,6 +33,11 @@
             if (step[1]-pixelsPlaced <= 0) {
                 $('#'+step[0]).css('filter', 'grayscale(0%)');
             }
+        }
+
+        /*      GOLD NAME       */
+        if(pixelsPlaced >= STEPS.STEP_THREE) {
+            $('#username').css('color', '#F1BD09');
         }
 
 
@@ -111,7 +110,7 @@
                     </div>
                     <div class="col-4">
                         <h2 class="text-center">2</h2>
-                        <p class="text-center">permanent tiles placed</p>
+                        <p class="text-center">permanent tiles remaining</p>
                     </div>
                     <div class="col-4">
                         <h2 class="text-center">Yes</h2>
