@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import PlaceView from '../views/PlaceView.vue';
+import Place from '../views/Place.vue';
 import Login from '../views/Login.vue';
 import User from '../views/User.vue';
 
@@ -9,7 +9,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'place',
-      component: PlaceView
+      component: Place
     },
     {
       path: '/login',

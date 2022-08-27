@@ -1,6 +1,6 @@
 @import "./base.css";
 
-input, button { all: unset;border:none; } 
+button { all: unset;border:none; } 
 
 html, body {
   margin: 0;

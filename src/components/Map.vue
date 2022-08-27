@@ -24,6 +24,8 @@
     const mapSts = useMapStore();
     const colorsSts = useColorsStore();
     var selector: {x: number, y: number};
+    var colorSelected: string = 'none';
+    var isFree = true;
 
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -98,6 +100,14 @@
         ctx.fillRect(0, 1000, 10, 10);
         ctx.fillRect(0, 0, 10, 10);
 
+        colorsSts.addColor({name: 'red', hex: '#FF0000'});
+        colorsSts.addColor({name: 'green', hex: '#00FF00'});
+        colorsSts.addColor({name: 'blue', hex: '#0000FF'});
+        colorsSts.addColor({name: 'purple', hex: '#ab34eb'});
+        colorsSts.addColor({name: 'yellow', hex: '#dce835'});
+        colorsSts.addColor({name: 'pink', hex: '#e835d9'});
+        colorsSts.addColor({name: 'brown', hex: '#702c04'});
+        colorsSts.addColor({name: 'orange', hex: '#f07f07'});
         /* END TEMP */
 
         // INIT SOCKET CONNEXION
@@ -149,6 +159,9 @@
             zoomDoubleClickSpeed: 1,
             onDoubleClick: function(e) {
                 isFree = false;
+                if(colorSelected !== 'none') {
+                    $('#place-pixel').addClass('place-pixel-button');
+                }
                 return false;
             }
         });
@@ -181,7 +194,6 @@
         });
 
 
-        var isFree = true;
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             isFree = false;
         }
@@ -201,10 +213,18 @@
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
+                    if(colorSelected !== 'none') {
+                        $('#place-pixel').addClass('place-pixel-button');
+                    }
                 } else {
                     setSelector(x, y);
                     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
                         isFree = true;
+                        $('#place-pixel').removeClass('place-pixel-button');
+                    } else {
+                        if(colorSelected !== 'none') {
+                            $('#place-pixel').addClass('place-pixel-button');
+                        }
                     }
                 }
             }
@@ -254,6 +274,29 @@
     }
 
 
+    function setColor(name: string) {
+        colorSelected = name;
+        if(selector && !isFree) {
+            $('#place-pixel').addClass('place-pixel-button');
+        }
+    }
+
+
+    function placePixel() {
+        if(colorSelected !== 'none' && selector) {
+            if($("#set-perm").is(':checked')) {
+                console.log('perm');
+            } else {
+                console.log('pas perm');
+            }
+            console.log("place pixel at " + selector.x + " " + selector.y);
+            console.log(colorSelected);
+            colorSelected = 'none';
+            $('#place-pixel').removeClass('place-pixel-button');
+        }
+    }
+
+
 </script>
 
 <template>
@@ -261,10 +304,72 @@
     <div id="parent-canvas">
         <canvas id="place"></canvas>
     </div>
+    <div id="select-pixel">
+        <div id="select-color-container">
+            <div v-for="color in colorsSts.colors" :key="color.name">
+                <div :id="`select-${color.name}`" class="select-color"
+                 :style="{background: color.hex}" :title="color.name"
+                 @click="setColor(color.name)"></div>
+            </div>
+        </div>
+        <p @click="placePixel" id="place-pixel" class="mb-0 px-2 pb-1 mt-2">Place pixel</p>
+        <div id="set-perm-div">
+            <input title="Set permanent" type="checkbox" id="set-perm" value="perm">
+        </div>
+    </div>
 
 </template>
 
 <style scoped>
+
+#set-perm {
+    width: 18px;
+    height: 18px;
+}
+
+#set-perm-div {
+    position: relative;
+    float: right;
+    top: 13px;
+}
+
+#place-pixel {
+    position: relative;
+    display: inline-block;
+    border-radius: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    background-color: #2c3e50;
+    cursor: not-allowed;
+}
+
+.place-pixel-button {
+    cursor: pointer !important;
+}
+
+.select-color {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+#select-color-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#select-pixel {
+    position: absolute;
+    top: 92%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px;
+    border: solid 2px;
+}
 
 #parent-canvas {
     position: absolute;
