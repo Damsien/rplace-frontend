@@ -8,7 +8,10 @@ export const useColorsStore = defineStore({
     _colors: [] as Color[]
   }),
   getters: {
-    colors: (state) => state._colors
+    colors: (state) => state._colors,
+    color: (state) => {
+      return (name: string) => <Color>state._colors.find((el) => el.name === name);
+    }
   },
   actions: {
     addColor(color: Color) {
