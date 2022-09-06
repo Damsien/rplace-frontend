@@ -30,6 +30,10 @@
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
 
+    const socket = io(`http://${import.meta.env.VITE_APP_BACKEND_URL}`, {
+        extraHeaders: HEADERS
+    });
+
     function rgbToHex(r: number, g: number, b: number) {
         if (r > 255 || g > 255 || b > 255)
             throw "Invalid color component";
@@ -90,30 +94,7 @@
         canvas = <HTMLCanvasElement>$('#place')[0];
         ctx = canvas.getContext('2d');
 
-        /* TEMP */
-        canvas.width = 2000;
-        canvas.height = 2000;
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, 2000, 2000);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(1990, 1000, 10, 10);
-        ctx.fillRect(0, 1000, 10, 10);
-        ctx.fillRect(0, 0, 10, 10);
-
-        colorsSts.addColor({name: 'red', hex: '#FF0000'});
-        colorsSts.addColor({name: 'green', hex: '#00FF00'});
-        colorsSts.addColor({name: 'blue', hex: '#0000FF'});
-        colorsSts.addColor({name: 'purple', hex: '#ab34eb'});
-        colorsSts.addColor({name: 'yellow', hex: '#dce835'});
-        colorsSts.addColor({name: 'pink', hex: '#e835d9'});
-        colorsSts.addColor({name: 'brown', hex: '#702c04'});
-        colorsSts.addColor({name: 'orange', hex: '#f07f07'});
-        /* END TEMP */
-
         // INIT SOCKET CONNEXION
-        const socket = io(`http://${import.meta.env.VITE_APP_BACKEND_URL}`, {
-            extraHeaders: HEADERS
-        });
 
 
         // GET MAP + USER SPECS
@@ -131,6 +112,7 @@
                     hex: color.split(':')[1]
                 });
             }
+            console.log(res.data.colors);
 
             // MAP
             const width = res.data.width;
@@ -140,14 +122,14 @@
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
-                // router.push('/login');
+                router.push('/login');
             }
         });
 
 
         // UPDATE PIXEL
         socket.on('pixel', pixel => {
-            setPixel(pixel);
+           setMapPixel(pixel);
         });
 
 
@@ -250,12 +232,24 @@
     }
 
 
+    function setMapPixel(pixel: any) {
+        let x = pixel['coord_x'] * 10;
+        let y = pixel['coord_y'] * 10;
+        let color = pixel['color'];
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 10, 10);
+    }
+
+
     function setMap(width: number, map: [] | any[]) {
         canvas.width = width * 10;
         canvas.height = width * 10;
 
         map.forEach(pixel => {
-            setPixel(pixel);
+            pixel['coord_x'] -= 1;
+            pixel['coord_y'] -= 1;
+            setMapPixel(pixel);
         });
     }
 
@@ -291,15 +285,18 @@
 
     function placePixel() {
         if(colorSelected !== 'none' && selector) {
+            let perm = false;
             if($("#set-perm").is(':checked')) {
-                console.log('perm');
-            } else {
-                console.log('pas perm');
+                perm = true;
             }
-            console.log("place pixel at " + selector.x + " " + selector.y);
-            console.log(colorSelected);
-            colorSelected = 'none';
             $('#place-pixel').removeClass('place-pixel-button');
+            socket.emit('placePixel', {
+                "coord_x": selector.x / 10,
+                "coord_y": selector.y / 10,
+                "color": colorSelected,
+                "isSticked": perm
+            });
+            colorSelected = 'none';
         }
     }
 
