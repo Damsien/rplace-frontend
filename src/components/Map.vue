@@ -26,6 +26,7 @@
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
     var isFree = true;
+    var lastPixelPlaced: Date;
 
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -112,7 +113,7 @@
                     hex: color.split(':')[1]
                 });
             }
-            console.log(res.data.colors);
+            lastPixelPlaced = new Date(res.data.lastPixelPlaced);
 
             // MAP
             const width = res.data.width;
@@ -129,7 +130,9 @@
 
         // UPDATE PIXEL
         socket.on('pixel', pixel => {
-           setMapPixel(pixel);
+            pixel.coord_x -= 1;
+            pixel.coord_y -= 1;
+            setMapPixel(pixel);
         });
 
 
@@ -188,7 +191,8 @@
                 setSelector(x, y);
             }
         });
-        canvas.addEventListener('mouseup', function(e) {
+        
+        function clickEvent(e) {
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
@@ -210,6 +214,9 @@
                     }
                 }
             }
+        }
+        canvas.addEventListener('pointerup', function(e) {
+            clickEvent(e);
         });
 
     });
@@ -284,15 +291,18 @@
 
 
     function placePixel() {
-        if(colorSelected !== 'none' && selector) {
+        const now = new Date();
+        const seconds = now.getSeconds()-lastPixelPlaced.getSeconds()
+        if(colorSelected !== 'none' && selector && (seconds > timerSts.timer || seconds < 0)) {
             let perm = false;
             if($("#set-perm").is(':checked')) {
                 perm = true;
             }
             $('#place-pixel').removeClass('place-pixel-button');
+            lastPixelPlaced = new Date();
             socket.emit('placePixel', {
-                "coord_x": selector.x / 10,
-                "coord_y": selector.y / 10,
+                "coord_x": (selector.x / 10)+1,
+                "coord_y": (selector.y / 10)+1,
                 "color": colorSelected,
                 "isSticked": perm
             });
@@ -313,7 +323,8 @@
             <div v-for="color in colorsSts.colors" :key="color.name">
                 <div :id="`select-${color.name}`" class="select-color"
                  :style="{background: color.hex}" :title="color.name"
-                 @click="setColor(color.name)"></div>
+                 @click="setColor(color.name)"
+                 @touchstart="setColor(color.name)"></div>
             </div>
         </div>
         <p @click="placePixel" id="place-pixel" class="mb-0 px-2 pb-1 mt-2">Place pixel</p>
