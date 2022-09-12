@@ -6,6 +6,8 @@ export type Pixel = {
     color: string;
     user: string;
     date: Date;
+    isSticked: boolean;
+    isUserGold: boolean;
 };
 
 export const usePixelStore = defineStore({
@@ -14,9 +16,11 @@ export const usePixelStore = defineStore({
     _pixel: {
       coord_x: 0,
       coord_y: 0,
-      color: 'white',
-      user: 'game',
-      date: new Date()
+      color: '',
+      user: '',
+      date: new Date(),
+      isSticked: false,
+      isUserGold: false
     } as Pixel
   }),
   getters: {
@@ -25,6 +29,18 @@ export const usePixelStore = defineStore({
   actions: {
     setPixel(pixel: Pixel) {
       this._pixel = pixel;
+      this._pixel.coord_x /= 10;
+      this._pixel.coord_y /= 10;
+    },
+    setUser(user: string) {
+      this._pixel.user = user;
+      console.log(this._pixel.user);
+    },
+    setIsSticked(isSticked: boolean) {
+      this._pixel.isSticked = isSticked;
+    },
+    setIsUserGold(isUserGold: boolean) {
+      this._pixel.isUserGold = isUserGold;
     }
   }
 })

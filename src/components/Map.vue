@@ -23,6 +23,7 @@
     const timerSts = useTimerStore();
     const mapSts = useMapStore();
     const colorsSts = useColorsStore();
+    const pixelSts = usePixelStore();
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
     var isFree = true;
@@ -59,12 +60,13 @@
                 pixel.color[2]
             )).slice(-6);
             setPixel(pixel);
+            pixelSts.setPixel(pixel);
         }
     }
 
     function setSelector(x: number, y: number) {
         if(selector) {
-            removeLastSelector(selector.x, selector.y)
+            removeLastSelector(selector.x, selector.y);
         }
 
         selector = {x:x, y:y};
@@ -105,7 +107,7 @@
         }).then(res => {
 
             // USER INFOS
-            timerSts.setTimer(res.data.timer);
+            timerSts.setTimer(res.data.timer+0.01);
             mapSts.setWidth(res.data.width);
             for(let color of res.data.colors) {
                 colorsSts.addColor({
@@ -113,7 +115,15 @@
                     hex: color.split(':')[1]
                 });
             }
+            const now = new Date(res.data.now);
             lastPixelPlaced = new Date(res.data.lastPixelPlaced);
+            timerSts.setTimeleft(timerSts.timer-((now-lastPixelPlaced)/1000));
+            const timer = setInterval(() => {
+                if (timerSts.timeleft > 0) {
+                    $('#place-pixel').removeClass('place-pixel-button');
+                    timerSts.setTimeleft(timerSts.timeleft-1);
+                }
+            }, 1000);
 
             // MAP
             const width = res.data.width;
@@ -133,6 +143,20 @@
             pixel.coord_x -= 1;
             pixel.coord_y -= 1;
             setMapPixel(pixel);
+        });
+
+
+        // UPDATE TIMER
+        socket.on('game', game => {
+            if (game.width) {
+                mapSts.setWidth(game.width);
+            }
+            if (game.timer) {
+                timerSts.setTimer(game.timer);
+            }
+            if (game.colors) {
+                colorsSts.setColors(game.colors);
+            }
         });
 
 
@@ -199,6 +223,7 @@
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
+                    displaySticked(x/10, y/10);
                     if(colorSelected !== 'none') {
                         $('#place-pixel').addClass('place-pixel-button');
                     }
@@ -220,6 +245,20 @@
         });
 
     });
+
+
+    function displaySticked(x: number, y: number) {
+        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel?coord_x=${x}&coord_y=${y}`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+            if (res.data.user != 'root.game') {
+                pixelSts.setUser(res.data.user);
+            }
+            pixelSts.setIsSticked(res.data.isSticked);
+            pixelSts.setIsUserGold(res.data.setIsUserGold);
+        });
+    }
 
 
     function setPixel(pixel: any) {
@@ -261,45 +300,25 @@
     }
 
 
-    function getSinglePixel(coord_x: number, coord_y: number) {
-        const pixelSts = usePixelStore();
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel?coord_x=${coord_x}&coord_y=${coord_y}`, {
-            headers: HEADERS,
-            method: 'GET',
-        }).then(res => {
-            pixelSts.setPixel({
-                coord_x: res.data['coord_x'],
-                coord_y: res.data['coord_y'],
-                color: res.data['color'],
-                user: res.data['user'].split('.')[1],
-                date: res.data['data']
-            });
-        }).catch(async err => {
-            if(!await refreshToken()) {
-                router.push('/login');
-            }
-        });
-    }
-
-
     function setColor(name: string) {
+        $(`#select-${colorSelected}`).removeClass('color-selected');
         colorSelected = name;
         if(selector && !isFree) {
             $('#place-pixel').addClass('place-pixel-button');
+            $(`#select-${colorSelected}`).addClass('color-selected');
         }
     }
 
 
     function placePixel() {
-        const now = new Date();
-        const seconds = now.getSeconds()-lastPixelPlaced.getSeconds()
-        if(colorSelected !== 'none' && selector && (seconds > timerSts.timer || seconds < 0)) {
+        if(colorSelected !== 'none' && selector && timerSts.timeleft == 0) {
             let perm = false;
             if($("#set-perm").is(':checked')) {
                 perm = true;
             }
             $('#place-pixel').removeClass('place-pixel-button');
             lastPixelPlaced = new Date();
+            timerSts.setTimeleft(timerSts.timer);
             socket.emit('placePixel', {
                 "coord_x": (selector.x / 10)+1,
                 "coord_y": (selector.y / 10)+1,
@@ -318,18 +337,33 @@
     <div id="parent-canvas">
         <canvas id="place"></canvas>
     </div>
-    <div id="select-pixel">
+    <div id="timer-box" class="box-for-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    {{timerSts.minute}}m{{timerSts.second}}s
+                </div>
+                <div class="col-9">
+                    x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
+                </div>
+                <div class="col-12">
+                    {{pixelSts.pixel.user}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="select-pixel" class="box-for-content">
         <div id="select-color-container">
             <div v-for="color in colorsSts.colors" :key="color.name">
                 <div :id="`select-${color.name}`" class="select-color"
-                 :style="{background: color.hex}" :title="color.name"
-                 @click="setColor(color.name)"
-                 @touchstart="setColor(color.name)"></div>
+                :style="{background: color.hex}" :title="color.name"
+                @click="setColor(color.name)"
+                @touchstart="setColor(color.name)"></div>
             </div>
         </div>
-        <p @click="placePixel" id="place-pixel" class="mb-0 px-2 pb-1 mt-2">Place pixel</p>
-        <div id="set-perm-div">
-            <input title="Set permanent" type="checkbox" id="set-perm" value="perm">
+        <div>
+            <button @click="placePixel" id="place-pixel" type="button" class="btn btn-primary mb-0 px-2 pb-1 pt-0 mt-2">Place pixel</button>
+            <input title="Set permanent" id="set-perm" class="form-check-input ms-3" type="checkbox" value="perm">
         </div>
     </div>
 
@@ -337,25 +371,18 @@
 
 <style scoped>
 
-#set-perm {
-    width: 18px;
-    height: 18px;
+#timer-box {
+    top: 5%;
 }
 
-#set-perm-div {
-    position: relative;
-    float: right;
-    top: 13px;
+#set-perm {
+    margin-top: 13px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
 }
 
 #place-pixel {
-    position: relative;
-    display: inline-block;
-    border-radius: 3px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    background-color: #2c3e50;
     cursor: not-allowed;
 }
 
@@ -367,6 +394,13 @@
     width: 20px;
     height: 20px;
     cursor: pointer;
+    border: solid 1px;
+    border-color: black;
+}
+
+.color-selected {
+    border: solid 2px;
+    border-color: #0d6efd;
 }
 
 #select-color-container {
@@ -375,15 +409,35 @@
     gap: 6px;
 }
 
-#select-pixel {
+@media (max-width: 540px) {
+    #select-color-container {
+        width: 300px;
+    }
+}
+
+@media (max-width: 320px) {
+    #select-color-container {
+        width: auto;
+    }
+    #select-pixel {
+        top: 87% !important;
+    }
+}
+
+
+.box-for-content {
     position: absolute;
-    top: 92%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
     border-radius: 5px;
     padding: 5px;
     border: solid 2px;
+    text-align: center;
+}
+
+#select-pixel {
+    top: 92%;
 }
 
 #parent-canvas {
