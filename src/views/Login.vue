@@ -4,6 +4,28 @@
     // @ts-ignore
     import $ from 'jquery';
 
+
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+
     let pscope;
     let username;
     let password;
@@ -27,18 +49,32 @@
 
 <template>
 
-    <div class="mb-3">
-        <label for="pscope" class="form-label">Zone</label>
-        <input type="text" class="form-control" id="pscope">
+    <div id="card" class="px-4">
+        <h2>Login</h2>
+        <form @submit.prevent="login" class="needs-validation">
+            <div class="mb-3">
+                <label for="pscope" class="form-label">School</label>
+                <select required class="form-select" id="pscope">
+                    <option>inp</option>
+                    <option>ecv</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input required type="text" class="form-control" id="username">
+                <div class="invalid-feedback">
+                    Please provide a username.
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input required type="password" class="form-control" id="password">
+                <div class="invalid-feedback">
+                    Please provide a password.
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username">
-    </div>
-    <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password">
-    </div>
-    <button @touchstart="login" @click="login" class="btn btn-primary">Submit</button>
 
 </template>

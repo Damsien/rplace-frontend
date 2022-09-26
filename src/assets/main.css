@@ -13,6 +13,24 @@ html, body {
   font-weight: normal;
 }
 
+#card {
+    width: 70%;
+    margin: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    background-color: white;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+}
+
+@media (max-width: 600px) {
+  #card {
+    width: 100%;
+    margin: 0;
+  }
+}
+
 /* a,
 .green {
   text-decoration: none;
