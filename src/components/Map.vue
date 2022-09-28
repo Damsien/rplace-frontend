@@ -133,7 +133,7 @@
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
-                router.push('/login');
+                // router.push('/login');
             }
         });
 
@@ -362,14 +362,54 @@
             </div>
         </div>
         <div>
-            <button @click="placePixel" id="place-pixel" type="button" class="btn btn-primary mb-0 px-2 pb-1 pt-0 mt-2">Place pixel</button>
-            <input title="Set permanent" id="set-perm" class="form-check-input ms-3" type="checkbox" value="perm">
+            <div class="dropdown">
+                <div class="dropdown-content">
+                    <a href="#">Normal</a>
+                    <a href="#">Permanent</a>
+                </div>
+                <button @click="placePixel" id="place-pixel" type="button" class="btn btn-primary mb-0 px-2 pb-1 pt-0 mt-2">Place pixel</button>
+            </div>
+            <!-- <input title="Set permanent" id="set-perm" class="form-check-input ms-3" type="checkbox" value="perm"> -->
         </div>
     </div>
 
 </template>
 
 <style scoped>
+
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  top: -50px;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: fill;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 2px 2px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+
 
 #timer-box {
     top: 5%;
