@@ -133,7 +133,7 @@
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
-                // router.push('/login');
+                router.push('/login');
             }
         });
 
@@ -155,7 +155,10 @@
                 timerSts.setTimer(game.timer);
             }
             if (game.colors) {
-                colorsSts.setColors(game.colors);
+                colorsSts.clearColors();
+                for(let [color, hex] of Object.entries(Object.entries(game.colors)[0][1])) {
+                    colorsSts.addColor({name: color, hex: hex});
+                }
             }
         });
 
