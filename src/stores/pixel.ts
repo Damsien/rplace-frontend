@@ -29,8 +29,6 @@ export const usePixelStore = defineStore({
   actions: {
     setPixel(pixel: Pixel) {
       this._pixel = pixel;
-      this._pixel.coord_x /= 10;
-      this._pixel.coord_y /= 10;
     },
     setUser(user: string) {
       this._pixel.user = user;

@@ -60,6 +60,8 @@
                 pixel.color[2]
             )).slice(-6);
             setPixel(pixel);
+            pixel.coord_x = (pixel.coord_x / 10)+2;
+            pixel.coord_y = (pixel.coord_y / 10)+1;
             pixelSts.setPixel(pixel);
         }
     }
@@ -226,7 +228,7 @@
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
-                    displaySticked(x/10, y/10);
+                    displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
                     if(colorSelected !== 'none') {
                         $('#place-pixel').addClass('place-pixel-button');
                     }
@@ -250,8 +252,12 @@
     });
 
 
-    function displaySticked(x: number, y: number) {
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel?coord_x=${x}&coord_y=${y}`, {
+    function displaySticked(coord_x: number, coord_y: number) {
+        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel`, {
+            params: {
+                coord_x: coord_x,
+                coord_y: coord_y
+            },
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -259,7 +265,13 @@
                 pixelSts.setUser(res.data.user);
             }
             pixelSts.setIsSticked(res.data.isSticked);
-            pixelSts.setIsUserGold(res.data.setIsUserGold);
+            pixelSts.setIsUserGold(res.data.isUserGold);
+            console.log(res.data)
+            if(pixelSts.pixel.isUserGold) {
+                $('#user-pixel').addClass('gold-user');
+            } else {
+                $('#user-pixel').removeClass('gold-user');
+            }
         });
     }
 
@@ -304,7 +316,7 @@
 
 
     function setColor(name: string) {
-        $(`#select-${colorSelected}`).removeClass('color-selected');
+        $(`.select-color`).removeClass('color-selected');
         colorSelected = name;
         if(selector && !isFree) {
             $('#place-pixel').addClass('place-pixel-button');
@@ -322,6 +334,7 @@
             $('#place-pixel').removeClass('place-pixel-button');
             lastPixelPlaced = new Date();
             timerSts.setTimeleft(timerSts.timer);
+            console.log(selector);
             socket.emit('placePixel', {
                 "coord_x": (selector.x / 10)+1,
                 "coord_y": (selector.y / 10)+1,
@@ -344,13 +357,19 @@
         <div class="container">
             <div class="row">
                 <div class="col-3">
+                    <div class="text-center">
                     {{timerSts.minute}}m{{timerSts.second}}s
+                    </div>
                 </div>
                 <div class="col-9">
+                    <div class="text-center">
                     x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
+                    </div>
                 </div>
                 <div class="col-12">
+                    <div id="user-pixel">
                     {{pixelSts.pixel.user}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -380,6 +399,10 @@
 
 <style scoped>
 
+
+.gold-user {
+    color: #f1b901;
+}
 
 .dropdown {
   position: relative;
@@ -450,12 +473,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-}
-
-@media (max-width: 540px) {
-    #select-color-container {
-        width: 300px;
-    }
+    width: auto;
 }
 
 @media (max-width: 320px) {
