@@ -154,6 +154,13 @@
             setMapPixel(pixel);
         });
 
+        // UPDATE USER
+        socket.on('user', user => {
+            if (user['stickedPixels'] !== undefined) {
+                setStickedPixels(user.stickedPixels);
+            }
+        });
+
 
         // UPDATE TIMER
         socket.on('game', game => {
@@ -245,6 +252,8 @@
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
+                $('#timer-box').css('border-color', '#3A3A3A');
+                $('#place-pixel').removeClass('disabled');
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
@@ -291,6 +300,10 @@
                 $('#user-pixel').addClass('gold-user');
             } else {
                 $('#user-pixel').removeClass('gold-user');
+            }
+            if(pixelSts.pixel.isSticked) {
+                $('#place-pixel').addClass('disabled');
+                $('#timer-box').css('border-color', 'red');
             }
         });
     }
