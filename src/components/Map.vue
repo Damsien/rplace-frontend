@@ -4,6 +4,7 @@
     import { useTimerStore } from '@/stores/timer.js';
     import { useMapStore } from '@/stores/map.js';
     import { usePixelStore } from '@/stores/pixel.js';
+    import { useUserStore } from '@/stores/user.js';
     import axios from 'axios';
     import $ from 'jquery';
     import io from "socket.io-client";
@@ -24,10 +25,12 @@
     const mapSts = useMapStore();
     const colorsSts = useColorsStore();
     const pixelSts = usePixelStore();
+    const userSts = useUserStore();
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
     var isFree = true;
     var lastPixelPlaced: Date;
+    var perm = false;
 
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -132,6 +135,10 @@
             const map = res.data.map;
             setMap(width, map);
 
+            userSts.setPixelsPlaced(res.data.pixelsPlaced);
+
+            setStickedPixels(res.data.stickedPixels);
+
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
@@ -220,6 +227,19 @@
                 setSelector(x, y);
             }
         });
+
+
+        function setStickedPixels(pxl: number) {
+            userSts.setStickedPixels(pxl);
+            if (pxl == 0) {
+                $('#dropdown-content').addClass('display-none');
+                $('#place-pixel').removeClass('disabled');
+            } else {
+                $('#dropdown-content').removeClass('display-none');
+                $('#place-pixel').addClass('disabled');
+            }
+        }
+
         
         function clickEvent(e) {
             let x = e.offsetX-(e.offsetX%10);
@@ -325,16 +345,17 @@
     }
 
 
+    function placePermanentPixel() {
+        perm = true;
+        placePixel();
+    }
+
+
     function placePixel() {
         if(colorSelected !== 'none' && selector && timerSts.timeleft == 0) {
-            let perm = false;
-            if($("#set-perm").is(':checked')) {
-                perm = true;
-            }
             $('#place-pixel').removeClass('place-pixel-button');
             lastPixelPlaced = new Date();
             timerSts.setTimeleft(timerSts.timer);
-            console.log(selector);
             socket.emit('placePixel', {
                 "coord_x": (selector.x / 10)+1,
                 "coord_y": (selector.y / 10)+1,
@@ -343,6 +364,7 @@
             });
             colorSelected = 'none';
         }
+        perm = false;
     }
 
 
@@ -384,12 +406,18 @@
             </div>
         </div>
         <div>
-            <div class="dropdown">
-                <div class="dropdown-content">
-                    <a href="#">Normal</a>
-                    <a href="#">Permanent</a>
-                </div>
-                <button @click="placePixel" id="place-pixel" type="button" class="btn btn-primary mb-0 px-2 pb-1 pt-0 mt-2">Place pixel</button>
+            <div class="dropdown mt-2">
+                <form @submit.prevent="placePixel">
+                    <div id="dropdown-content" class="dropdown-content">
+                        <form @submit.prevent="placePixel">
+                            <button type="submit">Normal</button>
+                        </form>
+                        <form @submit.prevent="placePermanentPixel">
+                            <button type="submit">Permanent</button>
+                        </form>
+                    </div>
+                    <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
+                </form>
             </div>
             <!-- <input title="Set permanent" id="set-perm" class="form-check-input ms-3" type="checkbox" value="perm"> -->
         </div>
@@ -411,12 +439,18 @@
 
 .dropdown-content {
   display: none;
-  top: -50px;
+  top: -60px;
   position: absolute;
   background-color: #f9f9f9;
   min-width: fill;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
+}
+
+.dropdown-content form {
+  padding: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .dropdown-content a {
@@ -426,16 +460,18 @@
   display: inline-block;
 }
 
-.dropdown-content a:hover {background-color: #f1f1f1}
+.dropdown-content form:hover {background-color: #dfdfdf}
 
 .dropdown:hover .dropdown-content {
   display: block;
 }
-
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
+.display-none {
+  display: none !important;
 }
 
+.disabled{
+  pointer-events: none;
+}
 
 #timer-box {
     top: 5%;
