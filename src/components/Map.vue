@@ -135,7 +135,7 @@
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
-                router.push('/login');
+                //router.push('/login');
             }
         });
 

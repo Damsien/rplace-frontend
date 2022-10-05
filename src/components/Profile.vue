@@ -13,11 +13,11 @@
 
 <template>
 
-<a href="../user">
+<router-link to="/user">
     <div class="text-center" id="profile">
         <img id="profile-svg" />
     </div>
-</a>
+</router-link>
 
 </template>
 
