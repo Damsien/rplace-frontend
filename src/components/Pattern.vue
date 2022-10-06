@@ -1,7 +1,17 @@
 <script setup lang='ts'>
     import $ from 'jquery';
     import panzoom from 'panzoom';
+    import axios from 'axios';
     import { useColorsStore } from '@/stores/colors.js';
+    import { usePixelStore } from '@/stores/pixel';
+
+    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
+    const HEADERS = {
+                'Accept': '*/*',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Authorization': `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
+            };
     
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -9,6 +19,7 @@
     var colorSelected: string = 'none';
     var isFree = true;
     const colorsSts = useColorsStore();
+    const pixelSts = usePixelStore();
 
     function rgbToHex(r: number, g: number, b: number) {
         if (r > 255 || g > 255 || b > 255)
@@ -34,6 +45,9 @@
                 pixel.color[2]
             )).slice(-6);
             setPixelBorder(pixel);
+            pixel.coord_x = (pixel.coord_x / 10)+2;
+            pixel.coord_y = (pixel.coord_y / 10)+1;
+            pixelSts.setPixel(pixel);
         }
     }
 
@@ -85,30 +99,58 @@
         canvas = <HTMLCanvasElement>$('#place')[0];
         ctx = canvas.getContext('2d');
 
-        /*  TEMP    */
-        canvas.width = 2000;
-        canvas.height = 2000;
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, 2000, 2000);
-        for(let i=0; i<200; i++) {
-            for(let j=0; j<200; j++) {
-                ctx.fillStyle = 'black';
-                ctx.fillRect((i*10)+4, (j*10)+4, 2, 2);
+        // USER SPECS
+        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+
+            for(let color of res.data.colors) {
+                colorsSts.addColor({
+                    name: color.split(':')[0],
+                    hex: color.split(':')[1]
+                });
             }
-        }
-        colorsSts.addColor({name: 'red', hex: '#FF0000'});
-        colorsSts.addColor({name: 'green', hex: '#00FF00'});
-        colorsSts.addColor({name: 'blue', hex: '#0000FF'});
-        colorsSts.addColor({name: 'purple', hex: '#ab34eb'});
-        colorsSts.addColor({name: 'yellow', hex: '#dce835'});
-        colorsSts.addColor({name: 'pink', hex: '#e835d9'});
-        colorsSts.addColor({name: 'brown', hex: '#702c04'});
-        colorsSts.addColor({name: 'orange', hex: '#f07f07'});
-        ctx.fillStyle = 'green';
-        ctx.fillRect(1990, 1000, 10, 10);
-        ctx.fillRect(0, 1000, 10, 10);
-        ctx.fillRect(0, 0, 10, 10);
-        /*  END TEMP    */
+
+            // MAP
+            const width = res.data.width;
+            canvas.width = width * 10;
+            canvas.height = width * 10;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, width);
+            for(let i=0; i<200; i++) {
+                for(let j=0; j<200; j++) {
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect((i*10)+4, (j*10)+4, 2, 2);
+                }
+            }
+            
+        }).catch(async err => {
+            console.log(err);
+            if(!await refreshToken()) {
+                //router.push('/login');
+            }
+        });
+
+
+        // GET CURRENT PATTERN
+        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${window.location.pathname.split('/')[window.location.pathname.split('/').length-1]}`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+            (res.data).forEach(pixel => {
+                pixel['coord_x'] -= 1;
+                pixel['coord_y'] -= 1;
+                
+                let x = pixel['coord_x'] * 10;
+                let y = pixel['coord_y'] * 10;
+                let color = pixel['color'];
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 10, 10);
+            });
+        });
+
 
         // PANZOOM
         const instance = panzoom(canvas, {
@@ -121,7 +163,6 @@
                 if(colorSelected !== 'none') {
                     $('#place-pixel').addClass('place-pixel-button');
                 }
-                $('#remove-pixel').addClass('place-pixel-button');
                 return false;
             },
             filterKey: function(/* e, dx, dy, dz */) {
@@ -180,18 +221,15 @@
                     if(colorSelected !== 'none') {
                         $('#place-pixel').addClass('place-pixel-button');
                     }
-                    $('#remove-pixel').addClass('place-pixel-button');
                 } else {
                     setSelector(x, y);
                     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
                         isFree = true;
                         $('#place-pixel').removeClass('place-pixel-button');
-                        $('#remove-pixel').removeClass('place-pixel-button');
                     } else {
                         if(colorSelected !== 'none') {
                             $('#place-pixel').addClass('place-pixel-button');
                         }
-                        $('#remove-pixel').addClass('place-pixel-button');
                     }
                 }
             }
@@ -212,6 +250,9 @@
                         break;
                     case "ArrowDown":
                         setSelector(selector.x, selector.y+10);
+                        // break;
+                    case "Enter":
+                        placePixel()
                         break;
                 }
             }
@@ -222,9 +263,11 @@
 
 
     function setColor(name: string) {
+        $(`.select-color`).removeClass('color-selected');
         colorSelected = name;
         if(selector && !isFree) {
             $('#place-pixel').addClass('place-pixel-button');
+            $(`#select-${colorSelected}`).addClass('color-selected');
         }
     }
 
@@ -236,7 +279,19 @@
             removeLastSelector(selector.x, selector.y);
             ctx.fillStyle = colorsSts.color(colorSelected).hex;
             ctx.fillRect(selector.x, selector.y, 10, 10);
-            $('#remove-pixel').removeClass('place-pixel-button');
+
+            axios.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place`, {
+                headers: HEADERS,
+                method: 'PUT',
+                bodatady: {
+                    patternId: window.location.pathname.split('/')[window.location.pathname.split('/').length-1],
+                    coord_x: pixelSts.pixel.coord_x,
+                    coord_y: pixelSts.pixel.coord_y,
+                    color: colorSelected
+                }
+            }).then(res => {
+
+            });
         }
     }
 
@@ -261,7 +316,17 @@
         console.log("remove pixel at " + selector.x + " " + selector.y);
         setPatternPixel(selector.x, selector.y);
         $('#place-pixel').removeClass('place-pixel-button');
-        $('#remove-pixel').removeClass('place-pixel-button');
+        axios.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove`, {
+            headers: HEADERS,
+            method: 'DELETE',
+            data: {
+                patternId: window.location.pathname.split('/')[window.location.pathname.split('/').length-1],
+                coord_x: pixelSts.pixel.coord_x,
+                coord_y: pixelSts.pixel.coord_y,
+            }
+        }).then(res => {
+            
+        });
     }
 
 </script>
@@ -271,21 +336,51 @@
     <div id="parent-canvas">
         <canvas id="place"></canvas>
     </div>
-    <div id="select-pixel">
+    <div id="timer-box" class="box-for-content">
+        <div class="text-center">
+        x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
+        </div>
+    </div>
+    <div id="select-pixel" class="box-for-content">
         <div id="select-color-container">
             <div v-for="color in colorsSts.colors" :key="color.name">
                 <div :id="`select-${color.name}`" class="select-color"
                 :style="{background: color.hex}" :title="color.name"
-                @click="setColor(color.name)"></div>
+                @click="setColor(color.name)"
+                @touchstart="setColor(color.name)"></div>
             </div>
         </div>
-        <p @click="placePixel" id="place-pixel" class="pixel-button mx-2 mb-0 px-2 pb-1 mt-2">Place pixel</p>
-        <p @click="removePixel" id="remove-pixel" class="pixel-button mx-2 mb-0 px-2 pb-1 mt-2">Remove pixel</p>
+        <div>
+            <div class="dropdown mt-2 text-center">
+                <form @submit.prevent="placePixel" class="d-inline-block me-1">
+                    <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
+                </form>
+                <form @submit.prevent="removePixel" class="d-inline-block ms-1">
+                    <button type="submit" id="remove-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Remove pixel</button>
+                </form>
+            </div>
+            <!-- <input title="Set permanent" id="set-perm" class="form-check-input ms-3" type="checkbox" value="perm"> -->
+        </div>
     </div>
     
 </template>
 
 <style scoped>
+
+#timer-box {
+    top: 5%;
+}
+
+.box-for-content {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px;
+    border: solid 2px;
+    text-align: center;
+}
 
 .pixel-button {
     position: relative;
@@ -301,7 +396,6 @@
 
 #remove-pixel {
     border-radius: 3px;
-    cursor: not-allowed;
 }
 
 .place-pixel-button {
@@ -312,12 +406,29 @@
     width: 20px;
     height: 20px;
     cursor: pointer;
+    border: solid 1px;
+    border-color: black;
+}
+
+.color-selected {
+    border: solid 2px;
+    border-color: #0d6efd;
 }
 
 #select-color-container {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    width: auto;
+}
+
+@media (max-width: 320px) {
+    #select-color-container {
+        width: auto;
+    }
+    #select-pixel {
+        top: 87% !important;
+    }
 }
 
 #select-pixel {
