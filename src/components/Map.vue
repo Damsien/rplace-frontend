@@ -5,6 +5,7 @@
     import { useMapStore } from '@/stores/map.js';
     import { usePixelStore } from '@/stores/pixel.js';
     import { useUserStore } from '@/stores/user.js';
+    import { usePatternStore } from '@/stores/pattern.js';
     import axios from 'axios';
     import $ from 'jquery';
     import io from "socket.io-client";
@@ -26,6 +27,7 @@
     const colorsSts = useColorsStore();
     const pixelSts = usePixelStore();
     const userSts = useUserStore();
+    var patternSts = usePatternStore();
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
     var isFree = true;
@@ -47,15 +49,15 @@
 
     function removeLastSelector(x: number, y: number) {
         let pixelsArround: any[any[string]] = [];
-        pixelsArround.push({color: ctx.getImageData(x+3, y+3, 1, 1).data, coord_x: x, coord_y: y});
-        pixelsArround.push({color: ctx.getImageData(x-3, y-3, 1, 1).data, coord_x: x-10, coord_y: y-10});
-        pixelsArround.push({color: ctx.getImageData(x+3, y-3, 1, 1).data, coord_x: x, coord_y: y-10});
-        pixelsArround.push({color: ctx.getImageData(x+13, y-3, 1, 1).data, coord_x: x+10, coord_y: y-10});
-        pixelsArround.push({color: ctx.getImageData(x+13, y+3, 1, 1).data, coord_x: x+10, coord_y: y});
-        pixelsArround.push({color: ctx.getImageData(x+13, y+13, 1, 1).data, coord_x: x+10, coord_y: y+10});
-        pixelsArround.push({color: ctx.getImageData(x+3, y+13, 1, 1).data, coord_x: x, coord_y: y+10});
-        pixelsArround.push({color: ctx.getImageData(x-3, y+13, 1, 1).data, coord_x: x-10, coord_y: y+10});
-        pixelsArround.push({color: ctx.getImageData(x-3, y+3, 1, 1).data, coord_x: x-10, coord_y: y});
+        pixelsArround.push({color: ctx.getImageData(x+2, y+2, 1, 1).data, coord_x: x, coord_y: y});
+        pixelsArround.push({color: ctx.getImageData(x-2, y-2, 1, 1).data, coord_x: x-10, coord_y: y-10});
+        pixelsArround.push({color: ctx.getImageData(x+2, y-2, 1, 1).data, coord_x: x, coord_y: y-10});
+        pixelsArround.push({color: ctx.getImageData(x+12, y-2, 1, 1).data, coord_x: x+10, coord_y: y-10});
+        pixelsArround.push({color: ctx.getImageData(x+12, y+2, 1, 1).data, coord_x: x+10, coord_y: y});
+        pixelsArround.push({color: ctx.getImageData(x+12, y+12, 1, 1).data, coord_x: x+10, coord_y: y+10});
+        pixelsArround.push({color: ctx.getImageData(x+2, y+12, 1, 1).data, coord_x: x, coord_y: y+10});
+        pixelsArround.push({color: ctx.getImageData(x-2, y+12, 1, 1).data, coord_x: x-10, coord_y: y+10});
+        pixelsArround.push({color: ctx.getImageData(x-2, y+2, 1, 1).data, coord_x: x-10, coord_y: y});
         for(let pixel of pixelsArround) {
             pixel['color'] = "#" + ("000000" + rgbToHex(
                 pixel.color[0],
@@ -102,8 +104,6 @@
         canvas = <HTMLCanvasElement>$('#place')[0];
         ctx = canvas.getContext('2d');
 
-        // INIT SOCKET CONNEXION
-
 
         // GET MAP + USER SPECS
         axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
@@ -145,6 +145,18 @@
                 //router.push('/login');
             }
         });
+
+
+        // CHECK PATTERN
+        if (this.$route.query.pattern !== undefined) {
+            let patternId = this.$route.query.pattern;
+            axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+                headers: HEADERS,
+                method: 'GET',
+            }).then(res => {
+                setPatternMap(res.data);
+            });
+        }
 
 
         // UPDATE PIXEL
@@ -240,10 +252,10 @@
             userSts.setStickedPixels(pxl);
             if (pxl == 0) {
                 $('#dropdown-content').addClass('display-none');
-                $('#place-pixel').removeClass('disabled');
+                $('#place-pixel').removeClass('btn btn-secondary');
             } else {
                 $('#dropdown-content').removeClass('display-none');
-                $('#place-pixel').addClass('disabled');
+                $('#place-pixel').addClass('btn btn-secondary');
             }
         }
 
@@ -253,7 +265,7 @@
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
                 $('#timer-box').css('border-color', '#3A3A3A');
-                $('#place-pixel').removeClass('disabled');
+                $('#place-pixel').removeClass('btn btn-secondary');
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
@@ -302,7 +314,7 @@
                 $('#user-pixel').removeClass('gold-user');
             }
             if(pixelSts.pixel.isSticked) {
-                $('#place-pixel').addClass('disabled');
+                $('#place-pixel').addClass('btn btn-secondary');
                 $('#timer-box').css('border-color', 'red');
             }
         });
@@ -344,6 +356,48 @@
             pixel['coord_x'] -= 1;
             pixel['coord_y'] -= 1;
             setMapPixel(pixel);
+        });
+    }
+
+    
+    function setPatternPixel(pixel: any) {
+        let x = pixel['coord_x'] * 10;
+        let y = pixel['coord_y'] * 10;
+        let color = pixel['color'];
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(x+4, y+4, 2, 2);
+    }
+
+
+    function setPatternMap(map: []) {
+        patternSts.setPixels(map);
+        canvas.width = width * 10;
+        canvas.height = width * 10;
+
+        map.forEach(pixel => {
+            pixel['coord_x'] -= 1;
+            pixel['coord_y'] -= 1;
+            setPatternPixel(pixel);
+        });
+    }
+
+    
+    function unsetPatternPixel(pixel: any) {
+        let x = pixel['coord_x'] * 10;
+        let y = pixel['coord_y'] * 10;
+        let color = ctx.getImageData(pixel.coord_x+2, pixel.coord_y+2, 1, 1).data;
+        
+        ctx.fillStyle = color;
+        ctx.fillRect(x+4, y+4, 2, 2);
+    }
+
+
+    function unsetPatternMap() {
+        patternSts.pixels.forEach(pixel => {
+            pixel['coord_x'] -= 1;
+            pixel['coord_y'] -= 1;
+            unsetPatternPixel(pixel);
         });
     }
 

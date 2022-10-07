@@ -134,7 +134,7 @@
 
 
         // GET CURRENT PATTERN
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${window.location.pathname.split('/')[window.location.pathname.split('/').length-1]}`, {
+        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${this.$route.params.pattern}`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -284,7 +284,7 @@
                 headers: HEADERS,
                 method: 'PUT',
                 bodatady: {
-                    patternId: window.location.pathname.split('/')[window.location.pathname.split('/').length-1],
+                    patternId: this.$route.params.pattern,
                     coord_x: pixelSts.pixel.coord_x,
                     coord_y: pixelSts.pixel.coord_y,
                     color: colorSelected
