@@ -4,6 +4,7 @@
     import axios from 'axios';
     import { useColorsStore } from '@/stores/colors.js';
     import { usePixelStore } from '@/stores/pixel';
+    import router from '@/router/index';
 
     const TOKEN = localStorage.getItem('ACCESS_TOKEN');
     const HEADERS = {
@@ -117,9 +118,9 @@
             canvas.width = width * 10;
             canvas.height = width * 10;
             ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, width, width);
-            for(let i=0; i<200; i++) {
-                for(let j=0; j<200; j++) {
+            ctx.fillRect(0, 0, width*10, width*10);
+            for(let i=0; i<width; i++) {
+                for(let j=0; j<width; j++) {
                     ctx.fillStyle = 'black';
                     ctx.fillRect((i*10)+4, (j*10)+4, 2, 2);
                 }
@@ -134,7 +135,7 @@
 
 
         // GET CURRENT PATTERN
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${this.$route.params.pattern}`, {
+        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -160,9 +161,6 @@
             zoomDoubleClickSpeed: 1,
             onDoubleClick: function(e) {
                 isFree = false;
-                if(colorSelected !== 'none') {
-                    $('#place-pixel').addClass('place-pixel-button');
-                }
                 return false;
             },
             filterKey: function(/* e, dx, dy, dz */) {
@@ -218,18 +216,10 @@
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
-                    if(colorSelected !== 'none') {
-                        $('#place-pixel').addClass('place-pixel-button');
-                    }
                 } else {
                     setSelector(x, y);
                     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
                         isFree = true;
-                        $('#place-pixel').removeClass('place-pixel-button');
-                    } else {
-                        if(colorSelected !== 'none') {
-                            $('#place-pixel').addClass('place-pixel-button');
-                        }
                     }
                 }
             }
@@ -266,7 +256,6 @@
         $(`.select-color`).removeClass('color-selected');
         colorSelected = name;
         if(selector && !isFree) {
-            $('#place-pixel').addClass('place-pixel-button');
             $(`#select-${colorSelected}`).addClass('color-selected');
         }
     }
@@ -281,14 +270,13 @@
             ctx.fillRect(selector.x, selector.y, 10, 10);
 
             axios.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place`, {
+                patternId: router.currentRoute.value.params.id,
+                coord_x: pixelSts.pixel.coord_x,
+                coord_y: pixelSts.pixel.coord_y,
+                color: colorSelected
+            }, {
                 headers: HEADERS,
                 method: 'PUT',
-                bodatady: {
-                    patternId: this.$route.params.pattern,
-                    coord_x: pixelSts.pixel.coord_x,
-                    coord_y: pixelSts.pixel.coord_y,
-                    color: colorSelected
-                }
             }).then(res => {
 
             });
@@ -315,15 +303,9 @@
     function removePixel() {
         console.log("remove pixel at " + selector.x + " " + selector.y);
         setPatternPixel(selector.x, selector.y);
-        $('#place-pixel').removeClass('place-pixel-button');
-        axios.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove`, {
+        axios.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove?patternId=${router.currentRoute.value.params.id}&coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
             headers: HEADERS,
             method: 'DELETE',
-            data: {
-                patternId: window.location.pathname.split('/')[window.location.pathname.split('/').length-1],
-                coord_x: pixelSts.pixel.coord_x,
-                coord_y: pixelSts.pixel.coord_y,
-            }
         }).then(res => {
             
         });
@@ -391,15 +373,11 @@
 
 #place-pixel {
     border-radius: 3px;
-    cursor: not-allowed;
+    cursor: pointer;
 }
 
 #remove-pixel {
     border-radius: 3px;
-}
-
-.place-pixel-button {
-    cursor: pointer !important;
 }
 
 .select-color {

@@ -125,7 +125,6 @@
             timerSts.setTimeleft(timerSts.timer-((now-lastPixelPlaced)/1000));
             const timer = setInterval(() => {
                 if (timerSts.timeleft > 0) {
-                    $('#place-pixel').removeClass('place-pixel-button');
                     timerSts.setTimeleft(timerSts.timeleft-1);
                 }
             }, 1000);
@@ -142,14 +141,14 @@
         }).catch(async err => {
             console.log(err);
             if(!await refreshToken()) {
-                //router.push('/login');
+                router.push('/login');
             }
         });
 
 
         // CHECK PATTERN
-        if (this.$route.query.pattern !== undefined) {
-            let patternId = this.$route.query.pattern;
+        if (router.currentRoute.value.params.query !== undefined) {
+            let patternId = router.currentRoute.value.params.query.pattern;
             axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
                 headers: HEADERS,
                 method: 'GET',
@@ -199,9 +198,6 @@
             zoomDoubleClickSpeed: 1,
             onDoubleClick: function(e) {
                 isFree = false;
-                if(colorSelected !== 'none') {
-                    $('#place-pixel').addClass('place-pixel-button');
-                }
                 return false;
             }
         });
@@ -252,10 +248,12 @@
             userSts.setStickedPixels(pxl);
             if (pxl == 0) {
                 $('#dropdown-content').addClass('display-none');
-                $('#place-pixel').removeClass('btn btn-secondary');
+                $('#place-pixel').removeClass('btn-secondary');
+                $('#place-pixel').addClass('btn-primary');
             } else {
                 $('#dropdown-content').removeClass('display-none');
-                $('#place-pixel').addClass('btn btn-secondary');
+                $('#place-pixel').removeClass('btn-primary');
+                $('#place-pixel').addClass('btn-secondary');
             }
         }
 
@@ -265,23 +263,14 @@
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
                 $('#timer-box').css('border-color', '#3A3A3A');
-                $('#place-pixel').removeClass('btn btn-secondary');
                 if(isFree) {
                     isFree = false;
                     setSelector(x, y);
                     displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
-                    if(colorSelected !== 'none') {
-                        $('#place-pixel').addClass('place-pixel-button');
-                    }
                 } else {
                     setSelector(x, y);
                     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
                         isFree = true;
-                        $('#place-pixel').removeClass('place-pixel-button');
-                    } else {
-                        if(colorSelected !== 'none') {
-                            $('#place-pixel').addClass('place-pixel-button');
-                        }
                     }
                 }
             }
@@ -406,7 +395,6 @@
         $(`.select-color`).removeClass('color-selected');
         colorSelected = name;
         if(selector && !isFree) {
-            $('#place-pixel').addClass('place-pixel-button');
             $(`#select-${colorSelected}`).addClass('color-selected');
         }
     }
@@ -420,7 +408,6 @@
 
     function placePixel() {
         if(colorSelected !== 'none' && selector && timerSts.timeleft == 0) {
-            $('#place-pixel').removeClass('place-pixel-button');
             lastPixelPlaced = new Date();
             timerSts.setTimeleft(timerSts.timer);
             socket.emit('placePixel', {
@@ -429,9 +416,15 @@
                 "color": colorSelected,
                 "isSticked": perm
             });
-            colorSelected = 'none';
         }
         perm = false;
+    }
+
+    
+    function placeNormalPixel() {
+        if (userSts.user.stickedPixels === 0) {
+            placePixel();
+        }
     }
 
 
@@ -474,7 +467,7 @@
         </div>
         <div>
             <div class="dropdown mt-2">
-                <form @submit.prevent="placePixel">
+                <form @submit.prevent="placeNormalPixel">
                     <div id="dropdown-content" class="dropdown-content">
                         <form @submit.prevent="placePixel">
                             <button type="submit">Normal</button>
@@ -552,11 +545,7 @@
 }
 
 #place-pixel {
-    cursor: not-allowed;
-}
-
-.place-pixel-button {
-    cursor: pointer !important;
+    cursor: pointer
 }
 
 .select-color {
