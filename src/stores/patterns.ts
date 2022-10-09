@@ -15,7 +15,6 @@ export const usePatternsStore = defineStore({
   actions: {
     setPatterns(patterns: []) {
       this._patterns.patterns = patterns;
-    },
-
+    }
   }
 })
