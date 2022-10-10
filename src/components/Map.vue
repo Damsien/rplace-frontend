@@ -102,6 +102,7 @@
     $(function() {
 
         canvas = <HTMLCanvasElement>$('#place')[0];
+        // @ts-ignore
         ctx = canvas.getContext('2d');
 
 
@@ -120,8 +121,9 @@
                     hex: color.split(':')[1]
                 });
             }
-            const now = new Date(res.data.now);
+            const now: Date = new Date(res.data.now);
             lastPixelPlaced = new Date(res.data.lastPixelPlaced);
+            // @ts-ignore
             timerSts.setTimeleft(timerSts.timer-((now-lastPixelPlaced)/1000));
             const timer = setInterval(() => {
                 if (timerSts.timeleft > 0) {
@@ -185,7 +187,9 @@
             }
             if (game.colors) {
                 colorsSts.clearColors();
+                // @ts-ignore
                 for(let [color, hex] of Object.entries(Object.entries(game.colors)[0][1])) {
+                    // @ts-ignore
                     colorsSts.addColor({name: color, hex: hex});
                 }
             }
@@ -260,7 +264,7 @@
         }
 
         
-        function clickEvent(e) {
+        function clickEvent(e: MouseEvent) {
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
@@ -385,13 +389,15 @@
         patternSts.setPixels(map);
 
         map.forEach(pixel => {
+            // @ts-ignore
             pixel['coord_x'] -= 1;
+            // @ts-ignore
             pixel['coord_y'] -= 1;
             setPatternPixel(pixel);
         });
     }
 
-    function buf2hex(buffer) { // buffer is an ArrayBuffer
+    function buf2hex(buffer: any) { // buffer is an ArrayBuffer
         return [...new Uint8Array(buffer)]
             .map(x => x.toString(16).padStart(2, '0'))
             .join('');
@@ -421,7 +427,9 @@
 
     function unsetPatternMap() {
         patternSts.pixels.forEach(pixel => {
+            // @ts-ignore
             pixel['coord_x'] -= 1;
+            // @ts-ignore
             pixel['coord_y'] -= 1;
             unsetPatternPixel(pixel);
         });
