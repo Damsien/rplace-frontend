@@ -9,7 +9,7 @@ export async function refreshToken(): Promise<boolean> {
         });
     
         localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
-        localStorage.setItem('SECRET_TOKEN', res.data['secret_token']);
+        localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
 
         return true;
         

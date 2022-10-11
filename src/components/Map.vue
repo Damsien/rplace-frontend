@@ -11,6 +11,7 @@
     import io from "socket.io-client";
     import { refreshToken } from '@/auth.js';
     import panzoom from 'panzoom';
+import http from '@/router/http';
     // https://github.com/thecodealer/vue-panzoom
 
     const TOKEN = localStorage.getItem('ACCESS_TOKEN');
@@ -18,7 +19,7 @@
                 'Accept': '*/*',
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
+                'Authorization': `Bearer ${TOKEN}`
             };
 
 
@@ -98,16 +99,31 @@
         ctx.fillRect(x+8, y+9, 2, 1);
     }
 
+
+    // On the the website loading
+    window.onload = function() {
+
+    }
+
+
+    function setStickedPixels(pxl: number) {
+        userSts.setStickedPixels(pxl);
+        if (pxl == 0) {
+            $('#dropdown-content').addClass('display-none');
+            $('#place-pixel').removeClass('btn-secondary');
+            $('#place-pixel').addClass('btn-primary');
+        } else {
+            $('#dropdown-content').removeClass('display-none');
+            $('#place-pixel').removeClass('btn-primary');
+            $('#place-pixel').addClass('btn-secondary');
+        }
+    }
+
     // Document ready
     $(function() {
 
-        canvas = <HTMLCanvasElement>$('#place')[0];
-        // @ts-ignore
-        ctx = canvas.getContext('2d');
-
-
         // GET MAP + USER SPECS
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -115,6 +131,7 @@
             // USER INFOS
             timerSts.setTimer(res.data.timer+0.01);
             mapSts.setWidth(res.data.width);
+            colorsSts.clearColors();
             for(let color of res.data.colors) {
                 colorsSts.addColor({
                     name: color.split(':')[0],
@@ -145,7 +162,7 @@
                 let patternId = router.currentRoute.value.query.pattern;
                 if (patternId !== undefined) {
                     patternSts.setIsPatternUnset(true);
-                    axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+                    http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
                         headers: HEADERS,
                         method: 'GET',
                     }).then(res => {
@@ -154,13 +171,11 @@
                 }
             }
 
-        }).catch(async err => {
-            console.log(err);
-            if(!await refreshToken()) {
-                router.push('/login');
-            }
         });
 
+        canvas = <HTMLCanvasElement>$('#place')[0];
+        // @ts-ignore
+        ctx = canvas.getContext('2d');
 
         // UPDATE PIXEL
         socket.on('pixel', pixel => {
@@ -249,20 +264,6 @@
             }
         });
 
-
-        function setStickedPixels(pxl: number) {
-            userSts.setStickedPixels(pxl);
-            if (pxl == 0) {
-                $('#dropdown-content').addClass('display-none');
-                $('#place-pixel').removeClass('btn-secondary');
-                $('#place-pixel').addClass('btn-primary');
-            } else {
-                $('#dropdown-content').removeClass('display-none');
-                $('#place-pixel').removeClass('btn-primary');
-                $('#place-pixel').addClass('btn-secondary');
-            }
-        }
-
         
         function clickEvent(e: MouseEvent) {
             let x = e.offsetX-(e.offsetX%10);
@@ -289,7 +290,7 @@
 
 
     function displaySticked(coord_x: number, coord_y: number) {
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel`, {
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel`, {
             params: {
                 coord_x: coord_x,
                 coord_y: coord_y
@@ -433,6 +434,7 @@
             pixel['coord_y'] -= 1;
             unsetPatternPixel(pixel);
         });
+        patternSts.setPixels([]);
         patternSts.setIsPatternUnset(false);
     }
 

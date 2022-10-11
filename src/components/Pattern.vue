@@ -4,7 +4,9 @@
     import axios from 'axios';
     import { useColorsStore } from '@/stores/colors.js';
     import { usePixelStore } from '@/stores/pixel';
+    import { refreshToken } from '@/auth.js';
     import router from '@/router/index';
+import http from '@/router/http';
 
     const TOKEN = localStorage.getItem('ACCESS_TOKEN');
     const HEADERS = {
@@ -98,14 +100,16 @@
 
     $(function() {
         canvas = <HTMLCanvasElement>$('#place')[0];
+        // @ts-ignore
         ctx = canvas.getContext('2d');
 
         // USER SPECS
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
 
+            colorsSts.clearColors();
             for(let color of res.data.colors) {
                 colorsSts.addColor({
                     name: color.split(':')[0],
@@ -126,19 +130,15 @@
                 }
             }
             
-        }).catch(async err => {
-            console.log(err);
-            if(!await refreshToken()) {
-                //router.push('/login');
-            }
         });
 
 
         // GET CURRENT PATTERN
-        axios.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
+            // @ts-ignore
             (res.data).forEach(pixel => {
                 pixel['coord_x'] -= 1;
                 pixel['coord_y'] -= 1;
@@ -269,7 +269,7 @@
             ctx.fillStyle = colorsSts.color(colorSelected).hex;
             ctx.fillRect(selector.x, selector.y, 10, 10);
 
-            axios.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place`, {
+            http.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place`, {
                 patternId: router.currentRoute.value.params.id,
                 coord_x: pixelSts.pixel.coord_x,
                 coord_y: pixelSts.pixel.coord_y,
@@ -303,7 +303,7 @@
     function removePixel() {
         console.log("remove pixel at " + selector.x + " " + selector.y);
         setPatternPixel(selector.x, selector.y);
-        axios.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove?patternId=${router.currentRoute.value.params.id}&coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
+        http.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove?patternId=${router.currentRoute.value.params.id}&coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
             headers: HEADERS,
             method: 'DELETE',
         }).then(res => {
@@ -410,14 +410,7 @@
 }
 
 #select-pixel {
-    position: absolute;
     top: 92%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    border-radius: 5px;
-    padding: 5px;
-    border: solid 2px;
 }
 
 #parent-canvas {

@@ -1,12 +1,28 @@
 <script setup lang="ts">
     // @ts-ignore
+    import http from '@/router/http';
     import $ from 'jquery';
     
+    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
+    const HEADERS = {
+                'Accept': '*/*',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Authorization': `Bearer ${TOKEN}`
+            };
+
     $(function () {
-        var imgUrl = "https://avatars.dicebear.com/api/pixel-art/edzedezze.svg";
-        $('#profile-svg').attr('src', imgUrl);
-        $('#profile-svg').attr('width', '50px');
-        $('#profile-svg').attr('height', '50px');
+
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/username`, {
+            headers: HEADERS,
+            method: 'GET'
+        }).then(res => {
+            var imgUrl = `https://avatars.dicebear.com/api/pixel-art/${res.data.pscope}-${res.data.username}.svg`;
+            $('#profile-svg').attr('src', imgUrl);
+            $('#profile-svg').attr('width', '50px');
+            $('#profile-svg').attr('height', '50px');
+        });
+
     })
 
 </script>

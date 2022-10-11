@@ -24,13 +24,8 @@ const router = createRouter({
       component: User
     },
     {
-      path: '/pattern',
-      name: 'pattern-add',
-      component: Pattern
-    },
-    {
       path: '/pattern/:id',
-      name: 'pattern-edit',
+      name: 'pattern',
       component: Pattern
     },
     {
@@ -41,4 +36,4 @@ const router = createRouter({
   ]
 })
 
-export default router
+export default router;

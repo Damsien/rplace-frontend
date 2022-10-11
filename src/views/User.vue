@@ -2,6 +2,16 @@
     // @ts-ignore
     import $ from 'jquery';
     import 'bootstrap/dist/js/bootstrap.js'
+    import http from '@/router/http';
+import { useUserStore } from '@/stores/user';
+     
+    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
+    const HEADERS = {
+                'Accept': '*/*',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Authorization': `Bearer ${TOKEN}`
+            };
 
     const STEPS = {
         STEP_ONE: 200,
@@ -9,48 +19,75 @@
         STEP_THREE: 800,
         STEP_FOUR: 1000,
     }
-    
+
+    const userSts = useUserStore();
+
     $(function () {
 
-        /*      PROFILE PIC     */
-        var imgUrl = "https://avatars.dicebear.com/api/pixel-art/ddassdeferfb.svg";
-        $('#profile-svg').attr('src', imgUrl);
-        $('#pic').on('click', function() {
-            $("#liveToast").show();
-            navigator.clipboard.writeText(window.location.toString());
-        });
-        $('#liveToast').on('click', function() {
-            $('#liveToast').hide();
-        });
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/spec`, {
+            headers: HEADERS,
+            method: 'GET'
+        }).then(res => {
 
 
-        var pixelsPlaced = 678;
-        /*      PIXELS PLACES   */
-        $('#pixelsPlaced').text(pixelsPlaced);
+            /*      RANK        */
+            userSts.setRank(res.data.rank);
 
-        /*      STEP CHECKER    */
-        for (let step of Object.entries(STEPS)) {
-            if (step[1]-pixelsPlaced <= 0) {
-                $('#'+step[0]).css('filter', 'grayscale(0%)');
+
+            /*      STICKED PIXELS      */
+            userSts.setStickedPixels(res.data.stickedPixels);
+
+            /*      BOMB        */
+            userSts.setBombs(res.data.bombs);
+
+            
+            /*      PROFILE PIC     */
+            var imgUrl = `https://avatars.dicebear.com/api/pixel-art/${res.data.pscope}-${res.data.username}.svg`;
+            $('#profile-svg').attr('src', imgUrl);
+            $('#pic').on('click', function() {
+                $("#liveToast").show();
+                navigator.clipboard.writeText(window.location.toString());
+            });
+            $('#liveToast').on('click', function() {
+                $('#liveToast').hide();
+            });
+
+            STEPS.STEP_ONE = res.data.steps[0];
+            STEPS.STEP_TWO = res.data.steps[1];
+            STEPS.STEP_THREE = res.data.steps[2];
+            STEPS.STEP_FOUR = res.data.steps[3];
+
+            var pixelsPlaced = res.data.pixelsPlaced;
+            /*      PIXELS PLACES   */
+            $('#pixelsPlaced').text(pixelsPlaced);
+
+            /*      STEP CHECKER    */
+            for (let step of Object.entries(STEPS)) {
+                if (step[1]-pixelsPlaced <= 0) {
+                    $('#'+step[0]).css('filter', 'grayscale(0%)');
+                }
             }
-        }
 
-        /*      GOLD NAME       */
-        if(pixelsPlaced >= STEPS.STEP_THREE) {
-            $('#username').css('color', '#F1BD09');
-        }
+            /*      GOLD NAME       */
+            if(res.data.isGold) {
+                $('#username').css('color', '#F1BD09');
+            }
 
 
-        /*      USER SET        */
-        var username = 'ddassieu';
-        var pscope = 'inp';
-        var group;
-        $('#username').text(username);
-        $('#school').text(pscope);
-        if (group) {
-            $('#groupInput').removeClass('d-none');
-            $('#group').text(group);
-        }
+            /*      USER SET        */
+            var group;
+            $('#username').text(res.data.username);
+            $('#school').text(res.data.pscope);
+            if (group) {
+                $('#groupInput').removeClass('d-none');
+                $('#group').text(group);
+            }
+
+
+            /*      FAVORITE COLOR  */
+            $('#favorite-color').css('background-color', res.data.favColor);
+
+        });
 
     });
 
@@ -98,7 +135,7 @@
                     <h3 class="text-center">tiles placed</h3>
                 </div>
                 <div class="col-6">
-                    <h1 class="text-center">#6</h1>
+                    <h1 class="text-center">#{{ userSts.user.rank }}</h1>
                     <h3 class="text-center">rank</h3>
                 </div>
             </div>
@@ -109,12 +146,12 @@
                         <p class="text-center">favorite color</p>
                     </div>
                     <div class="col-4">
-                        <h2 class="text-center">2</h2>
+                        <h2 class="text-center">{{ userSts.user.stickedPixels }}</h2>
                         <p class="text-center">permanent tiles remaining</p>
                     </div>
                     <div class="col-4">
-                        <h2 class="text-center">Yes</h2>
-                        <p class="text-center">bomb used</p>
+                        <h2 class="text-center">{{ userSts.user.bombs }}</h2>
+                        <p class="text-center">bombs remaining</p>
                     </div>
                 </div>
             </div>
@@ -195,7 +232,6 @@
     margin-bottom: 0.5rem !important;
     width: 20px;
     height: 20px;
-    background-color: red;
 }
 
 .text-imp {

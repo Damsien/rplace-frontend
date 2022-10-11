@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import http from '@/router/http';
     import router from '@/router/index';
     import axios from 'axios';
     // @ts-ignore
@@ -34,7 +35,7 @@
         pscope = $('#pscope').val();
         username = $('#username').val();
         password = $('#password').val();
-        axios.post(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/login`, {
+        http.post(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/login`, {
             "pscope": pscope,
             "username": username,
             "password": password
