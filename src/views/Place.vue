@@ -1,5 +1,7 @@
 <script setup lang="ts">
+// @ts-ignore
 import Map from '@/components/Map.vue'
+// @ts-ignore
 import Profile from '@/components/Profile.vue'
 </script>
 

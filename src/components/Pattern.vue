@@ -6,15 +6,8 @@
     import { usePixelStore } from '@/stores/pixel';
     import { refreshToken } from '@/auth.js';
     import router from '@/router/index';
-import http from '@/router/http';
-
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
-            };
+    import http from '@/router/http';
+    import { HEADERS } from '@/App.vue';
     
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;

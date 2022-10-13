@@ -4,14 +4,7 @@ import $ from 'jquery';
 import axios from 'axios';
 import { usePatternsStore } from '@/stores/patterns.js';
 import http from '@/router/http';
-
-const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-const HEADERS = {
-        'Accept': '*/*',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Authorization': `Bearer ${TOKEN}`
-    };
+import { HEADERS } from '@/App.vue';
 
 const patternsSts = usePatternsStore();
 

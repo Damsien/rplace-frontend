@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { socket } from '@/App.vue';
     import { refreshToken } from '@/auth.js';
     import { useColorsStore } from '@/stores/colors.js';
     import { useTimerStore } from '@/stores/timer.js';
@@ -6,18 +7,6 @@
     // @ts-ignore
     import $ from 'jquery';
     import io from "socket.io-client";
-
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${TOKEN}`
-            };
-
-    const socket = io(`http://${import.meta.env.VITE_APP_BACKEND_URL}`, {
-        extraHeaders: HEADERS
-    });
 
     const timer = useTimerStore();
     const map = useTimerStore();

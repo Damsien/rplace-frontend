@@ -3,15 +3,8 @@
     import $ from 'jquery';
     import 'bootstrap/dist/js/bootstrap.js'
     import http from '@/router/http';
-import { useUserStore } from '@/stores/user';
-     
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${TOKEN}`
-            };
+    import { useUserStore } from '@/stores/user';
+import { HEADERS } from '@/App.vue';
 
     const STEPS = {
         STEP_ONE: 200,
