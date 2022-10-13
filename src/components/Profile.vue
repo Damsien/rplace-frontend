@@ -1,15 +1,8 @@
 <script setup lang="ts">
     // @ts-ignore
+    import { HEADERS } from '@/App.vue';
     import http from '@/router/http';
     import $ from 'jquery';
-    
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${TOKEN}`
-            };
 
     $(function () {
 

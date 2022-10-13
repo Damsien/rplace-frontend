@@ -3,15 +3,9 @@
     import $ from 'jquery';
     import 'bootstrap/dist/js/bootstrap.js'
     import http from '@/router/http';
-import { useUserStore } from '@/stores/user';
-     
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${TOKEN}`
-            };
+    import { useUserStore } from '@/stores/user';
+    import { HEADERS } from '@/App.vue';
+    import { ref, onActivated } from 'vue'
 
     const STEPS = {
         STEP_ONE: 200,
@@ -22,7 +16,10 @@ import { useUserStore } from '@/stores/user';
 
     const userSts = useUserStore();
 
-    $(function () {
+    var imgUrl = '';
+
+    // When the user reaches on the page
+    onActivated(() => {
 
         http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/spec`, {
             headers: HEADERS,
@@ -42,54 +39,81 @@ import { useUserStore } from '@/stores/user';
 
             
             /*      PROFILE PIC     */
-            var imgUrl = `https://avatars.dicebear.com/api/pixel-art/${res.data.pscope}-${res.data.username}.svg`;
-            $('#profile-svg').attr('src', imgUrl);
-            $('#pic').on('click', function() {
-                $("#liveToast").show();
-                navigator.clipboard.writeText(window.location.toString());
-            });
-            $('#liveToast').on('click', function() {
-                $('#liveToast').hide();
-            });
+            imgUrl = `https://avatars.dicebear.com/api/pixel-art/${res.data.pscope}-${res.data.username}.svg`;
 
             STEPS.STEP_ONE = res.data.steps[0];
             STEPS.STEP_TWO = res.data.steps[1];
             STEPS.STEP_THREE = res.data.steps[2];
             STEPS.STEP_FOUR = res.data.steps[3];
 
-            var pixelsPlaced = res.data.pixelsPlaced;
-            /*      PIXELS PLACES   */
-            $('#pixelsPlaced').text(pixelsPlaced);
-
-            /*      STEP CHECKER    */
-            for (let step of Object.entries(STEPS)) {
-                if (step[1]-pixelsPlaced <= 0) {
-                    $('#'+step[0]).css('filter', 'grayscale(0%)');
-                }
-            }
+            /*      PIXELS PLACED   */
+            userSts.setPixelsPlaced(res.data.pixelsPlaced);
 
             /*      GOLD NAME       */
-            if(res.data.isGold) {
-                $('#username').css('color', '#F1BD09');
-            }
+            userSts.setIsGold(res.data.isGold);
 
 
             /*      USER SET        */
-            var group;
-            $('#username').text(res.data.username);
-            $('#school').text(res.data.pscope);
-            if (group) {
-                $('#groupInput').removeClass('d-none');
-                $('#group').text(group);
-            }
+            userSts.setPscope(res.data.pscope);
+            userSts.setUsername(res.data.username);
 
 
             /*      FAVORITE COLOR  */
-            $('#favorite-color').css('background-color', res.data.favColor);
+            userSts.setFavColor(res.data.favColor);
+            
+            try {
+                loadHtml();
+            } catch (e) {}
 
         });
 
     });
+
+
+    // When document is ready
+    $(function () {
+        loadHtml();
+    });
+
+    function loadHtml() {
+
+        // Load user's profile
+        $('#profile-svg').attr('src', imgUrl);
+        $('#pic').on('click', function() {
+            $("#liveToast").show();
+            navigator.clipboard.writeText(window.location.toString());
+        });
+        $('#liveToast').on('click', function() {
+            $('#liveToast').hide();
+        });
+
+        // Pixels placed
+        $('#pixelsPlaced').text(userSts.user.pixelsPlaced);
+
+        /*      STEP CHECKER    */
+        for (let step of Object.entries(STEPS)) {
+            if (step[1]-userSts.user.pixelsPlaced <= 0) {
+                $('#'+step[0]).css('filter', 'grayscale(0%)');
+            }
+        }
+
+        /*      GOLD NAME       */
+        if(userSts.user.isGold) {
+            $('#username').css('color', '#F1BD09');
+        }
+
+        /*      USER SET        */
+        var group;
+        $('#username').text(userSts.user.username);
+        $('#school').text(userSts.user.pscope);
+        if (group) {
+            $('#groupInput').removeClass('d-none');
+            $('#group').text(group);
+        }
+
+        /*      FAVORITE COLOR  */
+        $('#favorite-color').css('background-color', userSts.user.favColor);
+    }
 
 </script>
 

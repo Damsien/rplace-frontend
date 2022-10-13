@@ -11,16 +11,10 @@
     import io from "socket.io-client";
     import { refreshToken } from '@/auth.js';
     import panzoom from 'panzoom';
-import http from '@/router/http';
+    import http from '@/router/http';
+    import { HEADERS, socket } from '@/App.vue';
+    import { ref, onMounted, onActivated } from 'vue'
     // https://github.com/thecodealer/vue-panzoom
-
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${TOKEN}`
-            };
 
 
     const timerSts = useTimerStore();
@@ -28,7 +22,7 @@ import http from '@/router/http';
     const colorsSts = useColorsStore();
     const pixelSts = usePixelStore();
     const userSts = useUserStore();
-    var patternSts = usePatternStore();
+    const patternSts = usePatternStore();
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
     var isFree = true;
@@ -37,10 +31,6 @@ import http from '@/router/http';
 
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
-
-    const socket = io(`http://${import.meta.env.VITE_APP_BACKEND_URL}`, {
-        extraHeaders: HEADERS
-    });
 
     function rgbToHex(r: number, g: number, b: number) {
         if (r > 255 || g > 255 || b > 255)
@@ -101,26 +91,7 @@ import http from '@/router/http';
 
 
     // On the the website loading
-    window.onload = function() {
-
-    }
-
-
-    function setStickedPixels(pxl: number) {
-        userSts.setStickedPixels(pxl);
-        if (pxl == 0) {
-            $('#dropdown-content').addClass('display-none');
-            $('#place-pixel').removeClass('btn-secondary');
-            $('#place-pixel').addClass('btn-primary');
-        } else {
-            $('#dropdown-content').removeClass('display-none');
-            $('#place-pixel').removeClass('btn-primary');
-            $('#place-pixel').addClass('btn-secondary');
-        }
-    }
-
-    // Document ready
-    $(function() {
+    function getMapUser() {
 
         // GET MAP + USER SPECS
         http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
@@ -130,7 +101,6 @@ import http from '@/router/http';
 
             // USER INFOS
             timerSts.setTimer(res.data.timer+0.01);
-            mapSts.setWidth(res.data.width);
             colorsSts.clearColors();
             for(let color of res.data.colors) {
                 colorsSts.addColor({
@@ -142,36 +112,74 @@ import http from '@/router/http';
             lastPixelPlaced = new Date(res.data.lastPixelPlaced);
             // @ts-ignore
             timerSts.setTimeleft(timerSts.timer-((now-lastPixelPlaced)/1000));
+
+            // MAP
+            const width = res.data.width;
+            const map = res.data.map;
+            mapSts.setWidth(width);
+            mapSts.setMap(map);
+
+            // USER INFO
+            userSts.setPixelsPlaced(res.data.pixelsPlaced);
+            userSts.setStickedPixels(res.data.stickedPixels);
+            checkStickedPixels(userSts.user.stickedPixels);
+
+            // APPLY STATES
+            setMap(mapSts.width, mapSts.pixels);
+            checkStickedPixels(userSts.user.stickedPixels);
+
+            // TIMER
             const timer = setInterval(() => {
                 if (timerSts.timeleft > 0) {
                     timerSts.setTimeleft(timerSts.timeleft-1);
                 }
             }, 1000);
 
-            // MAP
-            const width = res.data.width;
-            const map = res.data.map;
-            setMap(width, map);
-
-            userSts.setPixelsPlaced(res.data.pixelsPlaced);
-
-            setStickedPixels(res.data.stickedPixels);
-
-            // CHECK PATTERN
-            if (router.currentRoute.value.query !== undefined) {
-                let patternId = router.currentRoute.value.query.pattern;
-                if (patternId !== undefined) {
-                    patternSts.setIsPatternUnset(true);
-                    http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
-                        headers: HEADERS,
-                        method: 'GET',
-                    }).then(res => {
-                        setPatternMap(res.data);
-                    });
-                }
-            }
-
         });
+    }
+
+
+    function checkPattern() {
+        // CHECK PATTERN
+        if (router.currentRoute.value.query !== undefined) {
+            let patternId = router.currentRoute.value.query.pattern;
+            if (patternId !== undefined) {
+                patternSts.setIsPatternUnset(true);
+                http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+                    headers: HEADERS,
+                    method: 'GET',
+                }).then(res => {
+                    setPatternMap(res.data);
+                });
+            }
+        }
+    }
+
+
+    function checkStickedPixels(pxl: number) {
+        if (pxl == 0) {
+            $('#dropdown-content').addClass('display-none');
+            $('#place-pixel').removeClass('btn-secondary');
+            $('#place-pixel').addClass('btn-primary');
+        } else {
+            $('#dropdown-content').removeClass('display-none');
+            $('#place-pixel').removeClass('btn-primary');
+            $('#place-pixel').addClass('btn-secondary');
+        }
+    }
+
+
+    // Each time the user reach the page
+    onActivated(() => {
+        checkPattern();
+    })
+
+
+    // First page load
+    onMounted(() => {
+        console.log('MOUNTED')
+        
+        getMapUser();
 
         canvas = <HTMLCanvasElement>$('#place')[0];
         // @ts-ignore
@@ -179,6 +187,7 @@ import http from '@/router/http';
 
         // UPDATE PIXEL
         socket.on('pixel', pixel => {
+            mapSts.editPixel(pixel);
             pixel.coord_x -= 1;
             pixel.coord_y -= 1;
             setMapPixel(pixel);
@@ -187,7 +196,8 @@ import http from '@/router/http';
         // UPDATE USER
         socket.on('user', user => {
             if (user['stickedPixels'] !== undefined) {
-                setStickedPixels(user.stickedPixels);
+                userSts.setStickedPixels(user.stickedPixels)
+                checkStickedPixels(userSts.user.stickedPixels);
             }
         });
 
@@ -210,6 +220,11 @@ import http from '@/router/http';
             }
         });
 
+    });
+
+
+    // When document is ready
+    $(function() {
 
         // PANZOOM
         const instance = panzoom(canvas, {
@@ -285,7 +300,6 @@ import http from '@/router/http';
         canvas.addEventListener('pointerup', function(e) {
             clickEvent(e);
         });
-
     });
 
 
@@ -303,7 +317,6 @@ import http from '@/router/http';
             }
             pixelSts.setIsSticked(res.data.isSticked);
             pixelSts.setIsUserGold(res.data.isUserGold);
-            console.log(res.data)
             if(pixelSts.pixel.isUserGold) {
                 $('#user-pixel').addClass('gold-user');
             } else {

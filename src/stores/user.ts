@@ -6,6 +6,9 @@ export type User = {
     rank: number;
     bombs: number;
     stickedPixels: number;
+    pscope: string;
+    username: string;
+    favColor: string;
 };
 
 export const useUserStore = defineStore({
@@ -16,7 +19,10 @@ export const useUserStore = defineStore({
       isGold: false,
       rank: 100,
       bombs: 0,
-      stickedPixels: 0
+      stickedPixels: 0,
+      pscope: '',
+      username: '',
+      favColor: ''
     } as User
   }),
   getters: {
@@ -40,6 +46,15 @@ export const useUserStore = defineStore({
     },
     setStickedPixels(stickedPixels: number) {
         this._user.stickedPixels = stickedPixels;
+    },
+    setPscope(pscope: string) {
+        this._user.pscope = pscope
+    },
+    setUsername(username: string) {
+        this._user.username = username;
+    },
+    setFavColor(color: string) {
+        this._user.favColor = color;
     }
   }
 })

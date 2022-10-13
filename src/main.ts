@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 // @ts-ignore
 import $ from 'jquery';
 
+// @ts-ignore
 import App from './App.vue'
 import router from './router'
 

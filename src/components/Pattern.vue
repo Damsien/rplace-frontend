@@ -6,15 +6,8 @@
     import { usePixelStore } from '@/stores/pixel';
     import { refreshToken } from '@/auth.js';
     import router from '@/router/index';
-import http from '@/router/http';
-
-    const TOKEN = localStorage.getItem('ACCESS_TOKEN');
-    const HEADERS = {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
-            };
+    import http from '@/router/http';
+    import { HEADERS } from '@/App.vue';
     
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -32,15 +25,15 @@ import http from '@/router/http';
 
     function removeLastSelector(x: number, y: number) {
         let pixelsArround: any[any[string]] = [];
-        pixelsArround.push({color: ctx.getImageData(x+3, y+3, 1, 1).data, coord_x: x, coord_y: y});
-        pixelsArround.push({color: ctx.getImageData(x-3, y-3, 1, 1).data, coord_x: x-10, coord_y: y-10});
-        pixelsArround.push({color: ctx.getImageData(x+3, y-3, 1, 1).data, coord_x: x, coord_y: y-10});
-        pixelsArround.push({color: ctx.getImageData(x+13, y-3, 1, 1).data, coord_x: x+10, coord_y: y-10});
-        pixelsArround.push({color: ctx.getImageData(x+13, y+3, 1, 1).data, coord_x: x+10, coord_y: y});
-        pixelsArround.push({color: ctx.getImageData(x+13, y+13, 1, 1).data, coord_x: x+10, coord_y: y+10});
-        pixelsArround.push({color: ctx.getImageData(x+3, y+13, 1, 1).data, coord_x: x, coord_y: y+10});
-        pixelsArround.push({color: ctx.getImageData(x-3, y+13, 1, 1).data, coord_x: x-10, coord_y: y+10});
-        pixelsArround.push({color: ctx.getImageData(x-3, y+3, 1, 1).data, coord_x: x-10, coord_y: y});
+        pixelsArround.push({color: ctx.getImageData(x+2, y+2, 1, 1).data, coord_x: x, coord_y: y});
+        pixelsArround.push({color: ctx.getImageData(x-2, y-2, 1, 1).data, coord_x: x-10, coord_y: y-10});
+        pixelsArround.push({color: ctx.getImageData(x+2, y-2, 1, 1).data, coord_x: x, coord_y: y-10});
+        pixelsArround.push({color: ctx.getImageData(x+12, y-2, 1, 1).data, coord_x: x+10, coord_y: y-10});
+        pixelsArround.push({color: ctx.getImageData(x+12, y+2, 1, 1).data, coord_x: x+10, coord_y: y});
+        pixelsArround.push({color: ctx.getImageData(x+12, y+12, 1, 1).data, coord_x: x+10, coord_y: y+10});
+        pixelsArround.push({color: ctx.getImageData(x+2, y+12, 1, 1).data, coord_x: x, coord_y: y+10});
+        pixelsArround.push({color: ctx.getImageData(x-2, y+12, 1, 1).data, coord_x: x-10, coord_y: y+10});
+        pixelsArround.push({color: ctx.getImageData(x-2, y+2, 1, 1).data, coord_x: x-10, coord_y: y});
         for(let pixel of pixelsArround) {
             pixel['color'] = "#" + ("000000" + rgbToHex(
                 pixel.color[0],
@@ -98,6 +91,27 @@ import http from '@/router/http';
         ctx.fillRect(x+8, y+9, 2, 1);
     }
 
+    function getCurrentPattern() {
+        // GET CURRENT PATTERN
+        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+            // @ts-ignore
+            (res.data).forEach(pixel => {
+                pixel['coord_x'] -= 1;
+                pixel['coord_y'] -= 1;
+                
+                let x = pixel['coord_x'] * 10;
+                let y = pixel['coord_y'] * 10;
+                let color = pixel['color'];
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 10, 10);
+            });
+        });
+    }
+
     $(function() {
         canvas = <HTMLCanvasElement>$('#place')[0];
         // @ts-ignore
@@ -129,27 +143,9 @@ import http from '@/router/http';
                     ctx.fillRect((i*10)+4, (j*10)+4, 2, 2);
                 }
             }
+
+            getCurrentPattern();
             
-        });
-
-
-        // GET CURRENT PATTERN
-        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
-            headers: HEADERS,
-            method: 'GET',
-        }).then(res => {
-            // @ts-ignore
-            (res.data).forEach(pixel => {
-                pixel['coord_x'] -= 1;
-                pixel['coord_y'] -= 1;
-                
-                let x = pixel['coord_x'] * 10;
-                let y = pixel['coord_y'] * 10;
-                let color = pixel['color'];
-                
-                ctx.fillStyle = color;
-                ctx.fillRect(x, y, 10, 10);
-            });
         });
 
 
@@ -240,7 +236,7 @@ import http from '@/router/http';
                         break;
                     case "ArrowDown":
                         setSelector(selector.x, selector.y+10);
-                        // break;
+                        break;
                     case "Enter":
                         placePixel()
                         break;
@@ -263,8 +259,8 @@ import http from '@/router/http';
 
     function placePixel() {
         if(colorSelected !== 'none' && selector) {
-            console.log("place pixel at " + selector.x + " " + selector.y);
-            console.log(colorSelected);
+            // console.log("place pixel at " + selector.x + " " + selector.y);
+            // console.log(colorSelected);
             removeLastSelector(selector.x, selector.y);
             ctx.fillStyle = colorsSts.color(colorSelected).hex;
             ctx.fillRect(selector.x, selector.y, 10, 10);

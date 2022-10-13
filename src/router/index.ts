@@ -1,8 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
+// @ts-ignore
 import Place from '../views/Place.vue';
+// @ts-ignore
 import Login from '../views/Login.vue';
+// @ts-ignore
 import User from '../views/User.vue';
+// @ts-ignore
 import Pattern from '../views/Pattern.vue';
+// @ts-ignore
 import PatternList from '../views/PatternList.vue';
 
 const router = createRouter({

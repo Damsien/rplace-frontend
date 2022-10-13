@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import Pattern from '@/components/Pattern.vue'
 import router from '@/router/index';
 </script>
