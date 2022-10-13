@@ -5,20 +5,25 @@ import axios from 'axios';
 import { usePatternsStore } from '@/stores/patterns.js';
 import http from '@/router/http';
 import { HEADERS } from '@/App.vue';
+import { ref, onActivated } from 'vue'
 
 const patternsSts = usePatternsStore();
 
+// When the document is ready
 $(function() {
     $('#liveToast').on('click', function() {
         $('#liveToast').hide();
     });
 });
 
-http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/all`, {
-    headers: HEADERS,
-    method: 'GET',
-}).then(res => {
-    patternsSts.setPatterns(res.data);
+// When the user reaches the page
+onActivated(() => {
+    http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/all`, {
+        headers: HEADERS,
+        method: 'GET',
+    }).then(res => {
+        patternsSts.setPatterns(res.data);
+    });
 });
 
 function onLink(e: any | Event) {

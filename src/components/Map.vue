@@ -13,6 +13,7 @@
     import panzoom from 'panzoom';
     import http from '@/router/http';
     import { HEADERS, socket } from '@/App.vue';
+    import { ref, onMounted, onActivated } from 'vue'
     // https://github.com/thecodealer/vue-panzoom
 
 
@@ -22,7 +23,6 @@
     const pixelSts = usePixelStore();
     const userSts = useUserStore();
     const patternSts = usePatternStore();
-    var timer;
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
     var isFree = true;
@@ -91,7 +91,7 @@
 
 
     // On the the website loading
-    window.onload = function() {
+    function getMapUser() {
 
         // GET MAP + USER SPECS
         http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
@@ -112,24 +112,28 @@
             lastPixelPlaced = new Date(res.data.lastPixelPlaced);
             // @ts-ignore
             timerSts.setTimeleft(timerSts.timer-((now-lastPixelPlaced)/1000));
-            timer = setInterval(() => {
-                if (timerSts.timeleft > 0) {
-                    timerSts.setTimeleft(timerSts.timeleft-1);
-                }
-            }, 1000);
 
             // MAP
             const width = res.data.width;
             const map = res.data.map;
             mapSts.setWidth(width);
             mapSts.setMap(map);
-            setMap(width, map);
 
             // USER INFO
             userSts.setPixelsPlaced(res.data.pixelsPlaced);
             userSts.setStickedPixels(res.data.stickedPixels);
             checkStickedPixels(userSts.user.stickedPixels);
-            checkPattern();
+
+            // APPLY STATES
+            setMap(mapSts.width, mapSts.pixels);
+            checkStickedPixels(userSts.user.stickedPixels);
+
+            // TIMER
+            const timer = setInterval(() => {
+                if (timerSts.timeleft > 0) {
+                    timerSts.setTimeleft(timerSts.timeleft-1);
+                }
+            }, 1000);
 
         });
     }
@@ -164,24 +168,22 @@
         }
     }
 
-    // Document ready
-    $(function() {
+
+    // Each time the user reach the page
+    onActivated(() => {
+        checkPattern();
+    })
+
+
+    // First page load
+    onMounted(() => {
+        console.log('MOUNTED')
+        
+        getMapUser();
 
         canvas = <HTMLCanvasElement>$('#place')[0];
         // @ts-ignore
         ctx = canvas.getContext('2d');
-
-        // APPLY STATES
-        setMap(mapSts.width, mapSts.pixels);
-        checkStickedPixels(userSts.user.stickedPixels);
-        checkPattern();
-
-        // TIMER
-        timer = setInterval(() => {
-            if (timerSts.timeleft > 0) {
-                timerSts.setTimeleft(timerSts.timeleft-1);
-            }
-        }, 1000);
 
         // UPDATE PIXEL
         socket.on('pixel', pixel => {
@@ -218,6 +220,11 @@
             }
         });
 
+    });
+
+
+    // When document is ready
+    $(function() {
 
         // PANZOOM
         const instance = panzoom(canvas, {
@@ -293,7 +300,6 @@
         canvas.addEventListener('pointerup', function(e) {
             clickEvent(e);
         });
-
     });
 
 
@@ -311,7 +317,6 @@
             }
             pixelSts.setIsSticked(res.data.isSticked);
             pixelSts.setIsUserGold(res.data.isUserGold);
-            console.log(res.data)
             if(pixelSts.pixel.isUserGold) {
                 $('#user-pixel').addClass('gold-user');
             } else {

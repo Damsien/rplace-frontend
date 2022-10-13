@@ -17,35 +17,6 @@ import { useColorsStore } from './stores/colors';
       extraHeaders: HEADERS
   });
 
-  const timerSts = useTimerStore();
-  const mapSts = useMapStore();
-  const colorsSts = useColorsStore();
-
-  // UPDATE PIXEL
-  socket.on('pixel', pixel => {
-      mapSts.editPixel(pixel);
-  });
-
-
-
-  // UPDATE TIMER
-  socket.on('game', game => {
-      if (game.width) {
-          mapSts.setWidth(game.width);
-      }
-      if (game.timer) {
-          timerSts.setTimer(game.timer);
-      }
-      if (game.colors) {
-          colorsSts.clearColors();
-          // @ts-ignore
-          for(let [color, hex] of Object.entries(Object.entries(game.colors)[0][1])) {
-              // @ts-ignore
-              colorsSts.addColor({name: color, hex: hex});
-          }
-      }
-  });
-
 </script>
 
 <template>
