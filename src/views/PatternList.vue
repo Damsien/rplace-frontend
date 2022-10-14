@@ -68,6 +68,7 @@ function createPattern() {
             method: 'POST',
         }).then(res => {
             const id = res.data.patternId;
+            $('#name').val('');
             router.push(`/pattern/${id}`);
         });
     }

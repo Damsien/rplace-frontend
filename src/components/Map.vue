@@ -122,7 +122,6 @@
             // USER INFO
             userSts.setPixelsPlaced(res.data.pixelsPlaced);
             userSts.setStickedPixels(res.data.stickedPixels);
-            checkStickedPixels(userSts.user.stickedPixels);
 
             // APPLY STATES
             setMap(mapSts.width, mapSts.pixels);
@@ -682,6 +681,7 @@
     padding: 5px;
     border: solid 2px;
     text-align: center;
+    border-color: black;
 }
 
 #select-pixel {

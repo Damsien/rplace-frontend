@@ -8,7 +8,8 @@
     import router from '@/router/index';
     import http from '@/router/http';
     import { HEADERS } from '@/App.vue';
-import { onActivated } from 'vue';
+    import { onActivated } from 'vue';
+    import { useMapStore } from '@/stores/map';
     
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -17,6 +18,7 @@ import { onActivated } from 'vue';
     var isFree = true;
     const colorsSts = useColorsStore();
     const pixelSts = usePixelStore();
+    const mapSts = useMapStore();
 
     function rgbToHex(r: number, g: number, b: number) {
         if (r > 255 || g > 255 || b > 255)
@@ -50,6 +52,9 @@ import { onActivated } from 'vue';
 
     function setSelector(x: number, y: number) {
         if(selector) {
+            if (x < 0 || y < 0 || x > (mapSts.width*10)-1 || y > (mapSts.width*10)-1) {
+                return;
+            }
             removeLastSelector(selector.x, selector.y)
         }
 
@@ -131,6 +136,7 @@ import { onActivated } from 'vue';
 
             // MAP
             const width = res.data.width;
+            mapSts.setWidth(width);
             canvas.width = width * 10;
             canvas.height = width * 10;
             ctx.fillStyle = 'white';
@@ -279,9 +285,21 @@ import { onActivated } from 'vue';
                 method: 'PUT',
             }).then(res => {
                 if (res !== undefined) {
-                    removeLastSelector(selector.x, selector.y);
                     ctx.fillStyle = colorsSts.color(colorSelected).hex;
-                    ctx.fillRect(selector.x, selector.y, 10, 10);
+
+                    const x = selector.x;
+                    const y = selector.y;
+                    ctx.fillRect(x, y, 10, 10);
+                    
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(x, y, 2, 1);
+                    ctx.fillRect(x, y, 1, 2);
+                    ctx.fillRect(x+8, y, 2, 1);
+                    ctx.fillRect(x+9, y, 1, 2);
+                    ctx.fillRect(x+8, y+9, 2, 1);
+                    ctx.fillRect(x+9, y+8, 1, 2);
+                    ctx.fillRect(x, y+9, 2, 1);
+                    ctx.fillRect(x, y+8, 1, 2);
                 }
             });
         }
