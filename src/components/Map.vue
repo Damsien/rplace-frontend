@@ -516,7 +516,6 @@
                 </div>
                 <div class="col-12">
                     <div @click="goToUser" class="cursor-pointer" id="user-pixel">
-                        o
                     {{pixelSts.pixel.user}}
                     </div>
                 </div>
