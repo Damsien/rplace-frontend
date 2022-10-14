@@ -6,6 +6,7 @@
     import { useUserStore } from '@/stores/user';
     import { HEADERS } from '@/App.vue';
     import { ref, onActivated } from 'vue'
+import router from '@/router';
 
     const STEPS = {
         STEP_ONE: 200,
@@ -21,7 +22,14 @@
     // When the user reaches on the page
     onActivated(() => {
 
-        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/spec`, {
+        let url = `http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user`;
+        if (router.currentRoute.value.params['id'] !== undefined) {
+            url += '/other/'+router.currentRoute.value.params['id'];
+        } else {
+            url += '/spec';
+        }
+ 
+        http.get(url, {
             headers: HEADERS,
             method: 'GET'
         }).then(res => {

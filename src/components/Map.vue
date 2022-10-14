@@ -489,6 +489,11 @@
     }
 
 
+    function goToUser() {
+        router.push(`/user/${pixelSts.pixel.user.split('.')[0]}-${pixelSts.pixel.user.split('.')[1]}`);
+    }
+
+
 </script>
 
 <template>
@@ -510,7 +515,8 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div id="user-pixel">
+                    <div @click="goToUser" class="cursor-pointer" id="user-pixel">
+                        o
                     {{pixelSts.pixel.user}}
                     </div>
                 </div>
@@ -538,7 +544,7 @@
                         </form>
                     </div>
                     <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
-                    <svg class="ms-2" v-if="patternSts.isPatternUnset" style="cursor: pointer;" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg>
+                    <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternUnset" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg>
                 </form>
             </div>
         </div>
@@ -615,6 +621,10 @@
     cursor: pointer;
     border: solid 1px;
     border-color: black;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
 
 .color-selected {
