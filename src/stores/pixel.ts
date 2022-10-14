@@ -24,7 +24,14 @@ export const usePixelStore = defineStore({
     } as Pixel
   }),
   getters: {
-    pixel: (state) => state._pixel
+    pixel: (state) => state._pixel,
+    user: (state) => {
+      if (state._pixel.user === undefined) {
+        return '';
+      } else {
+        return state._pixel.user.split('.')[0]+'-'+state._pixel.user.split('.')[1];
+      }
+    }
   },
   actions: {
     setPixel(pixel: Pixel) {

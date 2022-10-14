@@ -42,6 +42,10 @@ a {
     transform: translate(-50%, -50%);
 }
 
+#profile-svg {
+    top: 2px;
+}
+
 #profile {
     top: 25px;
     right: 25px;

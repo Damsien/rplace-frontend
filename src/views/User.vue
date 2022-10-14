@@ -195,7 +195,7 @@ import router from '@/router';
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
                         title="Place 200 to unlock 5 permanent pixels" class="a-unstyled">
                         <div class="perm-svg">
-                            <img id="STEP_ONE" style="filter: grayscale(80%);" src="src/assets/profile/perm-pixel.svg"/>
+                            <img id="STEP_ONE" style="filter: grayscale(80%);" src="/src/assets/profile/perm-pixel.svg"/>
                         </div>
                         <h4 class="text-center">{{STEPS.STEP_ONE}} placed</h4>
                     </button>
@@ -204,7 +204,7 @@ import router from '@/router';
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
                         title="Place 500 to unlock 1 bomb" class="a-unstyled">
                         <div class="perm-svg">
-                            <img id="STEP_TWO" style="filter: grayscale(80%);" src="src/assets/profile/bomb.svg">
+                            <img id="STEP_TWO" style="filter: grayscale(80%);" src="/src/assets/profile/bomb.svg">
                         </div>
                         <h4 class="text-center">{{STEPS.STEP_TWO}} placed</h4>
                     </button>
@@ -213,7 +213,7 @@ import router from '@/router';
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
                         title="Place 800 to have your name in gold" class="a-unstyled">
                         <div class="perm-svg">
-                            <img id="STEP_THREE" style="filter: grayscale(80%);" src="src/assets/profile/gold-name.svg"/>
+                            <img id="STEP_THREE" style="filter: grayscale(80%);" src="/src/assets/profile/gold-name.svg"/>
                         </div>
                         <h4 class="text-center">{{STEPS.STEP_THREE}} placed</h4>
                     </button>
@@ -222,7 +222,7 @@ import router from '@/router';
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
                         title="Place 1000 to unlock 5 permanent pixels" class="a-unstyled">
                         <div class="perm-svg">
-                            <img id="STEP_FOUR" style="filter: grayscale(80%);" src="src/assets/profile/perm-pixel.svg"/>
+                            <img id="STEP_FOUR" style="filter: grayscale(80%);" src="/src/assets/profile/perm-pixel.svg"/>
                         </div>
                         <h4 class="text-center">{{STEPS.STEP_FOUR}} placed</h4>
                     </button>

@@ -135,23 +135,33 @@
                 }
             }, 1000);
 
+            
+            // CHECK PATTERNS
+            checkPattern();
+
         });
     }
 
 
     function checkPattern() {
         // CHECK PATTERN
-        if (router.currentRoute.value.query !== undefined) {
-            let patternId = router.currentRoute.value.query.pattern;
-            if (patternId !== undefined) {
-                patternSts.setIsPatternUnset(true);
-                http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
-                    headers: HEADERS,
-                    method: 'GET',
-                }).then(res => {
-                    setPatternMap(res.data);
-                });
+        let patternId = router.currentRoute.value.query['pattern']?.toString();
+        if (patternId !== undefined || patternSts.isPatternSet) {
+            patternSts.setIsPatternSet(true);
+            if (patternId === undefined) {
+                patternId = patternSts.currentPatternId;
+            } else {
+                patternSts.setCurrentPatternId(patternId);
             }
+            http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+                headers: HEADERS,
+                method: 'GET',
+            }).then(res => {
+                if (res === undefined) {
+                    unsetPatternMap();
+                }
+                setPatternMap(res.data);
+            });
         }
     }
 
@@ -169,16 +179,7 @@
     }
 
 
-    // Each time the user reach the page
-    onActivated(() => {
-        checkPattern();
-    })
-
-
-    // First page load
-    onMounted(() => {
-        console.log('MOUNTED')
-        
+    function loadMapAndSockets() {
         getMapUser();
 
         canvas = <HTMLCanvasElement>$('#place')[0];
@@ -219,6 +220,28 @@
                 }
             }
         });
+    }
+
+
+    // Each time the user reach the page
+    onActivated(() => {
+        // If the component was already mounted without being logged -> the map will not be loaded anymore
+        // So we need to reload the website
+        if (router.currentRoute.value.query['login'] === 'true') {
+            loadMapAndSockets();
+        }
+
+        // Check if a pattern is apply
+        clearPatternMap();
+        checkPattern();
+    })
+
+
+    // First page load
+    onMounted(() => {
+        console.log('MOUNTED')
+        
+        loadMapAndSockets();
 
     });
 
@@ -293,6 +316,8 @@
                     setSelector(x, y);
                     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
                         isFree = true;
+                    } else {
+                        displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
                     }
                 }
             }
@@ -439,7 +464,7 @@
     }
 
 
-    function unsetPatternMap() {
+    function clearPatternMap() {
         patternSts.pixels.forEach(pixel => {
             // @ts-ignore
             pixel['coord_x'] -= 1;
@@ -448,7 +473,12 @@
             unsetPatternPixel(pixel);
         });
         patternSts.setPixels([]);
-        patternSts.setIsPatternUnset(false);
+        router.push('/');
+    }
+
+    function unsetPatternMap() {
+        patternSts.setIsPatternSet(false);
+        clearPatternMap();
     }
 
 
@@ -489,11 +519,6 @@
     }
 
 
-    function goToUser() {
-        router.push(`/user/${pixelSts.pixel.user.split('.')[0]}-${pixelSts.pixel.user.split('.')[1]}`);
-    }
-
-
 </script>
 
 <template>
@@ -515,9 +540,9 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div @click="goToUser" class="cursor-pointer" id="user-pixel">
-                    {{pixelSts.pixel.user}}
-                    </div>
+                    <router-link :to="'/user/'+pixelSts.user" class="cursor-pointer" id="user-pixel">
+                        {{pixelSts.pixel.user}}
+                    </router-link>
                 </div>
             </div>
         </div>
@@ -543,7 +568,7 @@
                         </form>
                     </div>
                     <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
-                    <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternUnset" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg>
+                    <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg>
                 </form>
             </div>
         </div>

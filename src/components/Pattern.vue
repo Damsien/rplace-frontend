@@ -8,6 +8,7 @@
     import router from '@/router/index';
     import http from '@/router/http';
     import { HEADERS } from '@/App.vue';
+import { onActivated } from 'vue';
     
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -92,6 +93,7 @@
     }
 
     function getCurrentPattern() {
+        console.log('get pattern')
         // GET CURRENT PATTERN
         http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
             headers: HEADERS,
@@ -112,11 +114,7 @@
         });
     }
 
-    $(function() {
-        canvas = <HTMLCanvasElement>$('#place')[0];
-        // @ts-ignore
-        ctx = canvas.getContext('2d');
-
+    onActivated(() => {
         // USER SPECS
         http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
             headers: HEADERS,
@@ -147,6 +145,12 @@
             getCurrentPattern();
             
         });
+    });
+
+    $(function() {
+        canvas = <HTMLCanvasElement>$('#place')[0];
+        // @ts-ignore
+        ctx = canvas.getContext('2d');
 
 
         // PANZOOM
@@ -205,7 +209,9 @@
                 setSelector(x, y);
             }
         });
-        canvas.addEventListener('mouseup', function(e) {
+        
+        
+        function clickEvent(e: MouseEvent) {
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
@@ -219,6 +225,9 @@
                     }
                 }
             }
+        };
+        canvas.addEventListener('pointerup', function(e) {
+            clickEvent(e);
         });
 
         window.addEventListener('keydown', function(event) {
@@ -261,12 +270,7 @@
         if(colorSelected !== 'none' && selector) {
             // console.log("place pixel at " + selector.x + " " + selector.y);
             // console.log(colorSelected);
-            removeLastSelector(selector.x, selector.y);
-            ctx.fillStyle = colorsSts.color(colorSelected).hex;
-            ctx.fillRect(selector.x, selector.y, 10, 10);
-
-            http.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place`, {
-                patternId: router.currentRoute.value.params.id,
+            http.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place/${router.currentRoute.value.params.id}`, {
                 coord_x: pixelSts.pixel.coord_x,
                 coord_y: pixelSts.pixel.coord_y,
                 color: colorSelected
@@ -274,7 +278,11 @@
                 headers: HEADERS,
                 method: 'PUT',
             }).then(res => {
-
+                if (res !== undefined) {
+                    removeLastSelector(selector.x, selector.y);
+                    ctx.fillStyle = colorsSts.color(colorSelected).hex;
+                    ctx.fillRect(selector.x, selector.y, 10, 10);
+                }
             });
         }
     }
@@ -297,13 +305,14 @@
     }
 
     function removePixel() {
-        console.log("remove pixel at " + selector.x + " " + selector.y);
-        setPatternPixel(selector.x, selector.y);
-        http.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove?patternId=${router.currentRoute.value.params.id}&coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
+        http.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove/${router.currentRoute.value.params.id}?coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
             headers: HEADERS,
             method: 'DELETE',
         }).then(res => {
-            
+            if (res !== undefined) {
+                console.log("remove pixel at " + selector.x + " " + selector.y);
+                setPatternPixel(selector.x, selector.y);
+            }
         });
     }
 
@@ -329,11 +338,11 @@
             </div>
         </div>
         <div>
-            <div class="dropdown mt-2 text-center">
-                <form @submit.prevent="placePixel" class="d-inline-block me-1">
+            <div id="button-ctnr" class="dropdown mt-2">
+                <form @submit.prevent="placePixel" class="d-inline-block">
                     <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
                 </form>
-                <form @submit.prevent="removePixel" class="d-inline-block ms-1">
+                <form @submit.prevent="removePixel" class="d-inline-block">
                     <button type="submit" id="remove-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Remove pixel</button>
                 </form>
             </div>
@@ -344,6 +353,12 @@
 </template>
 
 <style scoped>
+
+#button-ctnr {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
 
 #timer-box {
     top: 5%;
