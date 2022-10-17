@@ -3,17 +3,10 @@
     import $ from 'jquery';
     import 'bootstrap/dist/js/bootstrap.js'
     import http from '@/router/http';
-    import { useUserStore } from '@/stores/user';
+    import { useUserStore, type Step } from '@/stores/user';
     import { HEADERS } from '@/App.vue';
     import { ref, onActivated } from 'vue'
-import router from '@/router';
-
-    const STEPS = {
-        STEP_ONE: 200,
-        STEP_TWO: 500,
-        STEP_THREE: 800,
-        STEP_FOUR: 1000,
-    }
+    import router from '@/router';
 
     const userSts = useUserStore();
 
@@ -49,11 +42,6 @@ import router from '@/router';
             /*      PROFILE PIC     */
             imgUrl = `https://avatars.dicebear.com/api/pixel-art/${res.data.pscope}-${res.data.username}.svg`;
 
-            STEPS.STEP_ONE = res.data.steps[0];
-            STEPS.STEP_TWO = res.data.steps[1];
-            STEPS.STEP_THREE = res.data.steps[2];
-            STEPS.STEP_FOUR = res.data.steps[3];
-
             /*      PIXELS PLACED   */
             userSts.setPixelsPlaced(res.data.pixelsPlaced);
 
@@ -68,6 +56,12 @@ import router from '@/router';
 
             /*      FAVORITE COLOR  */
             userSts.setFavColor(res.data.favColor);
+
+            /*      STEPS       */
+            userSts.clearSteps();
+            for (let step of res.data.steps) {
+                userSts.addStep(step);
+            }
             
             try {
                 loadHtml();
@@ -89,7 +83,7 @@ import router from '@/router';
         $('#profile-svg').attr('src', imgUrl);
         $('#pic').on('click', function() {
             $("#liveToast").show();
-            navigator.clipboard.writeText(window.location.toString());
+            navigator.clipboard.writeText(window.location.toString()+`/${userSts.user.pscope}-${userSts.user.username}`);
         });
         $('#liveToast').on('click', function() {
             $('#liveToast').hide();
@@ -99,9 +93,9 @@ import router from '@/router';
         $('#pixelsPlaced').text(userSts.user.pixelsPlaced);
 
         /*      STEP CHECKER    */
-        for (let step of Object.entries(STEPS)) {
-            if (step[1]-userSts.user.pixelsPlaced <= 0) {
-                $('#'+step[0]).css('filter', 'grayscale(0%)');
+        for (let step of userSts.user.steps) {
+            if (step.pixels-userSts.user.pixelsPlaced <= 0) {
+                $('#'+step.name).css('filter', 'grayscale(0%)');
             }
         }
 
@@ -191,40 +185,14 @@ import router from '@/router';
         <div class="line"></div>
         <div id="goal" class="container">
             <div class="row">
-                <div class="col-sm-3 col-6">
+                <div v-for="step of userSts.user.steps" class="col-sm-3 col-6">
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Place 200 to unlock 5 permanent pixels" class="a-unstyled">
+                        :title="step.description" class="a-unstyled">
                         <div class="perm-svg">
-                            <img id="STEP_ONE" style="filter: grayscale(80%);" src="/src/assets/profile/perm-pixel.svg"/>
+                            <img v-if="step.pixels < userSts.user.pixelsPlaced" :id="step.name" :src="'/src/assets/profile/'+step.img+'.svg'"/>
+                            <img v-else :id="step.name" style="filter: grayscale(80%);" :src="'/src/assets/profile/'+step.img+'.svg'"/>
                         </div>
-                        <h4 class="text-center">{{STEPS.STEP_ONE}} placed</h4>
-                    </button>
-                </div>
-                <div class="col-sm-3 col-6">
-                    <button data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Place 500 to unlock 1 bomb" class="a-unstyled">
-                        <div class="perm-svg">
-                            <img id="STEP_TWO" style="filter: grayscale(80%);" src="/src/assets/profile/bomb.svg">
-                        </div>
-                        <h4 class="text-center">{{STEPS.STEP_TWO}} placed</h4>
-                    </button>
-                </div>
-                <div class="col-sm-3 col-6">
-                    <button data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Place 800 to have your name in gold" class="a-unstyled">
-                        <div class="perm-svg">
-                            <img id="STEP_THREE" style="filter: grayscale(80%);" src="/src/assets/profile/gold-name.svg"/>
-                        </div>
-                        <h4 class="text-center">{{STEPS.STEP_THREE}} placed</h4>
-                    </button>
-                </div>
-                <div class="col-sm-3 col-6">
-                    <button data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Place 1000 to unlock 5 permanent pixels" class="a-unstyled">
-                        <div class="perm-svg">
-                            <img id="STEP_FOUR" style="filter: grayscale(80%);" src="/src/assets/profile/perm-pixel.svg"/>
-                        </div>
-                        <h4 class="text-center">{{STEPS.STEP_FOUR}} placed</h4>
+                        <h4 class="text-center">{{step.pixels}} placed</h4>
                     </button>
                 </div>
             </div>

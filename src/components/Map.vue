@@ -104,8 +104,9 @@
             colorsSts.clearColors();
             for(let color of res.data.colors) {
                 colorsSts.addColor({
-                    name: color.split(':')[0],
-                    hex: color.split(':')[1]
+                    name: color.name,
+                    // @ts-ignore
+                    hex: color.hex
                 });
             }
             const now: Date = new Date(res.data.now);
@@ -117,6 +118,7 @@
             const width = res.data.width;
             const map = res.data.map;
             mapSts.setWidth(width);
+            mapSts.clearMap();
             mapSts.setMap(map);
 
             // USER INFO
@@ -193,29 +195,50 @@
             setMapPixel(pixel);
         });
 
-        // UPDATE USER
+        // UPDATE WHEN USER SCOPE CHANGES OCCURS
         socket.on('user', user => {
-            if (user['stickedPixels'] !== undefined) {
+            if (user.stickedPixels) {
                 userSts.setStickedPixels(user.stickedPixels)
                 checkStickedPixels(userSts.user.stickedPixels);
+            }
+            if (user.bombs) {
+                userSts.setBombs(user.bombAvailable);
+            }
+            if (user.timer) {
+                timerSts.setTimer(user.timer);
+            }
+            if (user.colors) {
+                for (let color of user.colors) {
+                    colorsSts.addColor({name: color.name, hex: color.hex});
+                }
             }
         });
 
 
-        // UPDATE TIMER
+        // UPDATE WHEN GLOBAL GAME CHANGES OCCURS
         socket.on('game', game => {
             if (game.width) {
+                // @ts-ignore
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const pixels = mapSts.pixels;
+                for (let i=0; i<pixels.length; i++) {
+                    pixels[i].coord_x++;
+                    pixels[i].coord_y++;
+                }
                 mapSts.setWidth(game.width);
+                mapSts.clearMap();
+                // @ts-ignore
+                mapSts.setMap(pixels);
+                setMap(mapSts.width, mapSts.pixels);
             }
             if (game.timer) {
                 timerSts.setTimer(game.timer);
             }
             if (game.colors) {
                 colorsSts.clearColors();
-                // @ts-ignore
-                for(let [color, hex] of Object.entries(Object.entries(game.colors)[0][1])) {
-                    // @ts-ignore
-                    colorsSts.addColor({name: color, hex: hex});
+                for (let color of game.colors) {
+                    colorsSts.addColor({name: color.name, hex: color.hex});
                 }
             }
         });
@@ -341,15 +364,11 @@
             }
             pixelSts.setIsSticked(res.data.isSticked);
             pixelSts.setIsUserGold(res.data.isUserGold);
-            if(pixelSts.pixel.isUserGold) {
-                $('#user-pixel').addClass('gold-user');
-            } else {
-                $('#user-pixel').removeClass('gold-user');
-            }
             if(pixelSts.pixel.isSticked) {
                 $('#place-pixel').addClass('btn btn-secondary');
                 $('#timer-box').css('border-color', 'red');
             }
+            mapSts.editPixel(res.data);
         });
     }
 
@@ -497,12 +516,16 @@
 
 
     function placePixel() {
-        if(colorSelected !== 'none' && selector && timerSts.timeleft == 0) {
+        const coordX = (selector.x / 10)+1;
+        const coordY = (selector.y / 10)+1;
+        const isSticked = mapSts.pixels.find((el) => el.coord_x == coordX && el.coord_y == coordY)?.isSticked;
+        if(colorSelected !== 'none' && selector && timerSts.timeleft == 0 
+         && (perm || (!isSticked && !perm))) {
             lastPixelPlaced = new Date();
             timerSts.setTimeleft(timerSts.timer);
             socket.emit('placePixel', {
-                "coord_x": (selector.x / 10)+1,
-                "coord_y": (selector.y / 10)+1,
+                "coord_x": coordX,
+                "coord_y": coordY,
                 "color": colorSelected,
                 "isSticked": perm
             });
@@ -538,8 +561,11 @@
                     x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
                     </div>
                 </div>
-                <div class="col-12">
-                    <router-link :to="'/user/'+pixelSts.user" class="cursor-pointer" id="user-pixel">
+                <div class="col-12" style="font-size: 17px;">
+                    <router-link v-if="pixelSts.pixel.isUserGold" :to="'/user/'+pixelSts.user" class="cursor-pointer gold-user text-decoration-none" id="user-pixel">
+                        {{pixelSts.pixel.user}}
+                    </router-link>
+                    <router-link v-else :to="'/user/'+pixelSts.user" class="cursor-pointer text-decoration-none" id="user-pixel">
                         {{pixelSts.pixel.user}}
                     </router-link>
                 </div>
@@ -580,6 +606,7 @@
 
 .gold-user {
     color: #f1b901;
+    text-shadow: 0 0 0.5px rgb(63, 63, 63);
 }
 
 .dropdown {
