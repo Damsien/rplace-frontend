@@ -120,6 +120,10 @@
     }
 
     onActivated(() => {
+        canvas = <HTMLCanvasElement>$('#place')[0];
+        // @ts-ignore
+        ctx = canvas.getContext('2d');
+        
         // USER SPECS
         http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
             headers: HEADERS,
@@ -129,8 +133,9 @@
             colorsSts.clearColors();
             for(let color of res.data.colors) {
                 colorsSts.addColor({
-                    name: color.split(':')[0],
-                    hex: color.split(':')[1]
+                    name: color.name,
+                    // @ts-ignore
+                    hex: color.hex
                 });
             }
 
@@ -154,11 +159,6 @@
     });
 
     $(function() {
-        canvas = <HTMLCanvasElement>$('#place')[0];
-        // @ts-ignore
-        ctx = canvas.getContext('2d');
-
-
         // PANZOOM
         const instance = panzoom(canvas, {
             minZoom: 1,

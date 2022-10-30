@@ -83,7 +83,7 @@
         $('#profile-svg').attr('src', imgUrl);
         $('#pic').on('click', function() {
             $("#liveToast").show();
-            navigator.clipboard.writeText(window.location.toString()+`/${userSts.user.pscope}-${userSts.user.username}`);
+            navigator.clipboard.writeText(window.location.toString());
         });
         $('#liveToast').on('click', function() {
             $('#liveToast').hide();

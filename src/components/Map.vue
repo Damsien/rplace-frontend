@@ -365,8 +365,14 @@
             pixelSts.setIsSticked(res.data.isSticked);
             pixelSts.setIsUserGold(res.data.isUserGold);
             if(pixelSts.pixel.isSticked) {
-                $('#place-pixel').addClass('btn btn-secondary');
+                $('#place-pixel').removeClass('btn-primary');
+                $('#place-pixel').addClass('btn-secondary');
                 $('#timer-box').css('border-color', 'red');
+            } else {
+                if (userSts.user.stickedPixels <= 0) {
+                    $('#place-pixel').removeClass('btn-secondary');
+                    $('#place-pixel').addClass('btn-primary');
+                }
             }
             mapSts.editPixel(res.data);
         });
@@ -528,6 +534,10 @@
          && (perm || (!isSticked && !perm))) {
             lastPixelPlaced = new Date();
             timerSts.setTimeleft(timerSts.timer);
+            if (perm) {
+                userSts.setStickedPixels(userSts.user.stickedPixels-1);
+                checkStickedPixels(userSts.user.stickedPixels);
+            }
             socket.emit('placePixel', {
                 "coord_x": coordX,
                 "coord_y": coordY,
