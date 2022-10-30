@@ -7,7 +7,7 @@
     import { useUserStore } from '@/stores/user.js';
     import { usePatternStore } from '@/stores/pattern.js';
     import axios from 'axios';
-    import $ from 'jquery';
+    import $, { map } from 'jquery';
     import io from "socket.io-client";
     import { refreshToken } from '@/auth.js';
     import panzoom from 'panzoom';
@@ -218,19 +218,19 @@
         // UPDATE WHEN GLOBAL GAME CHANGES OCCURS
         socket.on('game', game => {
             if (game.width) {
+                mapSts.setWidth(game.width);
+                canvas.width = mapSts.width * 10;
+                canvas.height = mapSts.width * 10;
                 // @ts-ignore
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // @ts-ignore
                 const pixels = mapSts.pixels;
                 for (let i=0; i<pixels.length; i++) {
                     pixels[i].coord_x++;
                     pixels[i].coord_y++;
                 }
-                mapSts.setWidth(game.width);
-                mapSts.clearMap();
-                // @ts-ignore
-                mapSts.setMap(pixels);
-                setMap(mapSts.width, mapSts.pixels);
+                placeAllPixels(pixels);
             }
             if (game.timer) {
                 timerSts.setTimer(game.timer);
@@ -424,6 +424,11 @@
         canvas.width = width * 10;
         canvas.height = width * 10;
 
+        placeAllPixels(map);
+    }
+
+
+    function placeAllPixels(map: [] | any[]) {
         map.forEach(pixel => {
             pixel['coord_x'] -= 1;
             pixel['coord_y'] -= 1;

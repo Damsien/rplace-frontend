@@ -48,7 +48,11 @@ export const useMapStore = defineStore({
         const index = this._map.pixels.findIndex(
           (el) => el.coord_x == pixel.coord_x && el.coord_y == pixel.coord_y
         );
-        this._map.pixels[index] = pixel;
+        if (index == -1) {
+          this._map.pixels.push(pixel);
+        } else {
+          this._map.pixels[index] = pixel;
+        }
       } catch(err) {
         this._map.pixels.push(pixel);
       }
