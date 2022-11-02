@@ -57,6 +57,7 @@
                 <label for="pscope" class="form-label">School</label>
                 <select required class="form-select" id="pscope">
                     <option>inp</option>
+                    <option>loc</option>
                     <option>ecv</option>
                 </select>
             </div>
