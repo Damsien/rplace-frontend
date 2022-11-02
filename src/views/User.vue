@@ -112,12 +112,10 @@
         }
 
         /*      USER SET        */
-        var group;
         $('#username').text(userSts.user.username);
         $('#school').text(userSts.user.pscope);
-        if (group) {
-            $('#groupInput').removeClass('d-none');
-            $('#group').text(group);
+        if (userSts.user.group) {
+            $('#group').text(userSts.user.group);
         }
 
         /*      FAVORITE COLOR  */
@@ -129,6 +127,9 @@
             if (!userSts.user.group) {
                 $('#group-html1').addClass('d-none');
                 $('#group-html2').addClass('d-none');
+            } else {
+                $('#group-html1').removeClass('d-none');
+                $('#group-html2').removeClass('d-none');
             }
         } else {
             $('#group-html1').removeClass('d-none');
@@ -138,14 +139,13 @@
 
     function linkGroup() {
         const grp = $('#grp-name').val();
-        http.post(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/group`, {
+        http.put(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/group/link`, {
             "name": grp
         }, {
             headers: HEADERS,
-            method: 'POST',
+            method: 'PUT',
         }).then(res => {
             userSts.setGroup(res.data);
-            $('#group').text(res.data);
         });
     }
 
@@ -170,7 +170,7 @@
             <div class="row">
                 <div class="col-12 col-sm-6 text-center">
                     <button id="pic">
-                        <img class="mx-auto" width="100px" height="100px" id="profile-svg" />
+                        <img class="mx-auto" style="width: 100px; height: 100px;" id="profile-svg" />
                     </button>
                 </div>
                 <div class="col-12 col-sm-6 text-center my-auto">
@@ -181,11 +181,11 @@
                         <div class="text-imp col-6"><p class="float-start mb-0" id="school"></p></div>
                         <div class="col-6 pe-0"><p id="group-html1" class="float-end mt-1 mb-0">Group: </p></div>
                         <div class="text-imp col-6" id="group-html2">
-                            <form @submit.prevent="linkGroup" v-if="userSts.user.group == ''" class="inline-block">
+                            <form @submit.prevent="linkGroup" v-if="userSts.user.group == null" class="text-start">
                                 <input type="text" id="grp-name" name="name" class="w-50 me-1">
-                                <button type="submit" class="btn btn-outline-primary w-25 p-1">Link</button>
+                                <button type="submit" class="btn btn-outline-primary w-25 p-0 mb-1">Link</button>
                             </form>
-                            <p v-else class="float-start mb-0" id="group"></p>
+                            <p class="float-start mb-0" id="group">{{userSts.user.group}}</p>
                         </div>
                     </div>
                 </div>
