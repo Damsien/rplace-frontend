@@ -3,12 +3,13 @@
     import $ from 'jquery';
     import 'bootstrap/dist/js/bootstrap.js'
     import http from '@/router/http';
-    import { useUserStore, type Step } from '@/stores/user';
+    import { useUserStore } from '@/stores/user';
     import { HEADERS } from '@/App.vue';
     import { ref, onActivated } from 'vue'
     import router from '@/router';
 
     const userSts = useUserStore();
+    let kind = 'self';
 
     var imgUrl = '';
 
@@ -18,8 +19,10 @@
         let url = `http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user`;
         if (router.currentRoute.value.params['id'] !== undefined) {
             url += '/other/'+router.currentRoute.value.params['id'];
+            kind = 'other';
         } else {
             url += '/spec';
+            kind = 'self';
         }
  
         http.get(url, {
@@ -27,6 +30,10 @@
             method: 'GET'
         }).then(res => {
 
+
+            /*      GROUP       */
+            userSts.setGroup(res.data.group);
+            
 
             /*      RANK        */
             userSts.setRank(res.data.rank);
@@ -115,6 +122,31 @@
 
         /*      FAVORITE COLOR  */
         $('#favorite-color').css('background-color', userSts.user.favColor);
+
+
+        /*      GROUP       */
+        if (kind == 'other') {
+            if (!userSts.user.group) {
+                $('#group-html1').addClass('d-none');
+                $('#group-html2').addClass('d-none');
+            }
+        } else {
+            $('#group-html1').removeClass('d-none');
+            $('#group-html2').removeClass('d-none');
+        }
+    }
+
+    function linkGroup() {
+        const grp = $('#grp-name').val();
+        http.post(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/group`, {
+            "name": grp
+        }, {
+            headers: HEADERS,
+            method: 'POST',
+        }).then(res => {
+            userSts.setGroup(res.data);
+            $('#group').text(res.data);
+        });
     }
 
 </script>
@@ -147,8 +179,14 @@
                         <div class="text-imp col-6"><p class="float-start mb-0" id="username"></p></div>
                         <div class="col-6 pe-0"><p class="float-end mt-1 mb-0">School: </p></div>
                         <div class="text-imp col-6"><p class="float-start mb-0" id="school"></p></div>
-                        <div class="col-6 pe-0"><p id="groupInput" class="float-end mt-1 mb-0 d-none">Group: </p></div>
-                        <div class="text-imp col-6"><p class="float-start mb-0" id="group"></p></div>
+                        <div class="col-6 pe-0"><p id="group-html1" class="float-end mt-1 mb-0">Group: </p></div>
+                        <div class="text-imp col-6" id="group-html2">
+                            <form @submit.prevent="linkGroup" v-if="userSts.user.group == ''" class="inline-block">
+                                <input type="text" id="grp-name" name="name" class="w-50 me-1">
+                                <button type="submit" class="btn btn-outline-primary w-25 p-1">Link</button>
+                            </form>
+                            <p v-else class="float-start mb-0" id="group"></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,7 +223,7 @@
         <div class="line"></div>
         <div id="goal" class="container">
             <div class="row">
-                <div v-for="step of userSts.user.steps" class="col-sm-3 col-6">
+                <div v-for="step of userSts.user.steps" class="col-sm-3 col-6" v-bind:key="step.name">
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
                         :title="step.description" class="a-unstyled">
                         <div class="perm-svg">

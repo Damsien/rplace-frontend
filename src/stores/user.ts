@@ -17,6 +17,7 @@ export type User = {
     username: string;
     favColor: string;
     steps: Step[];
+    group: string;
 };
 
 export const useUserStore = defineStore({
@@ -31,7 +32,8 @@ export const useUserStore = defineStore({
       pscope: '',
       username: '',
       favColor: '',
-      steps: []
+      steps: [],
+      group: ''
     } as User
   }),
   getters: {
@@ -39,7 +41,7 @@ export const useUserStore = defineStore({
   },
   actions: {
     setUser(user: User) {
-      this._user = user;
+        this._user = user;
     },
     setIsGold(isGold: boolean) {
         this._user.isGold = isGold;
@@ -70,6 +72,9 @@ export const useUserStore = defineStore({
     },
     addStep(step: Step) {
         this._user.steps.push(step);
+    },
+    setGroup(group: string) {
+        this._user.group = group;
     }
   }
 })
