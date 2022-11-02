@@ -42,7 +42,7 @@
         }).then(res => {
             localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
             localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
-            router.push('/');
+            router.push('/?login=true');
         });
     }
 

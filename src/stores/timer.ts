@@ -22,6 +22,7 @@ export const useTimerStore = defineStore({
   },
   actions: {
     setTimer(timer: number) {
+      this._timer.timeleft <= (this._timer.timer - timer) ? this._timer.timeleft = 0 : this._timer.timeleft -= (this._timer.timer - timer);
       this._timer.timer = timer < 0 ? 0 : timer;
     },
     setTimeleft(timeleft: number) {

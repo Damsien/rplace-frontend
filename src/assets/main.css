@@ -6,6 +6,9 @@ html, body {
   margin: 0;
   padding: 0;
   background-color: #3a3a3a;
+}
+
+p, h1, h2, h3, h4, h5, .text-center, label, button {
   color: #3a3a3a;
 }
 

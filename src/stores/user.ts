@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia';
 
+export type Step = {
+    name: string;
+    pixels: number;
+    description: string;
+    img: string;
+};
+
 export type User = {
     pixelsPlaced: number;
     isGold: boolean;
@@ -9,6 +16,7 @@ export type User = {
     pscope: string;
     username: string;
     favColor: string;
+    steps: Step[];
 };
 
 export const useUserStore = defineStore({
@@ -22,7 +30,8 @@ export const useUserStore = defineStore({
       stickedPixels: 0,
       pscope: '',
       username: '',
-      favColor: ''
+      favColor: '',
+      steps: []
     } as User
   }),
   getters: {
@@ -55,6 +64,12 @@ export const useUserStore = defineStore({
     },
     setFavColor(color: string) {
         this._user.favColor = color;
+    },
+    clearSteps() {
+        this._user.steps = [];
+    },
+    addStep(step: Step) {
+        this._user.steps.push(step);
     }
   }
 })
