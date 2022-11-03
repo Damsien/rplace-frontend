@@ -90,7 +90,12 @@
         $('#profile-svg').attr('src', imgUrl);
         $('#pic').on('click', function() {
             $("#liveToast").show();
-            navigator.clipboard.writeText(window.location.toString());
+            const location = window.location.toString();
+            if (kind == 'self') {
+                navigator.clipboard.writeText(location+'/'+userSts.user.pscope+'-'+userSts.user.username);
+            } else {
+                navigator.clipboard.writeText(location);
+            }
         });
         $('#liveToast').on('click', function() {
             $('#liveToast').hide();
@@ -232,6 +237,7 @@
                         </div>
                         <h4 class="text-center">{{step.pixels}} placed</h4>
                     </button>
+                    <p>{{step.description}}</p>
                 </div>
             </div>
         </div>

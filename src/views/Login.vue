@@ -20,13 +20,14 @@
         Array.prototype.slice.call(forms)
             .forEach(function (form) {
             form.addEventListener('submit', function (event: any) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
 
-                form.classList.add('was-validated')
-                login();
+                event.preventDefault()
+                event.stopPropagation()
+                form.classList.add('was-validated');
+                
+                if (form.checkValidity()) {
+                    login();
+                }
             }, false)
         })
 
@@ -60,7 +61,7 @@
 
     <div id="card" class="px-4">
         <div class="alert alert-danger d-none" role="alert" id="alert-danger">
-            You are not authorized
+            You are not authorized / not logged in
         </div>
         <h2>Sign in</h2>
         <form class="needs-validation" novalidate>
