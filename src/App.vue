@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 import { RouterLink, RouterView } from 'vue-router';
 import io from "socket.io-client";
 import { useTimerStore } from './stores/timer';
