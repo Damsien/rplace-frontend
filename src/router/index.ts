@@ -9,6 +9,8 @@ import User from '../views/User.vue';
 import Pattern from '../views/Pattern.vue';
 // @ts-ignore
 import PatternList from '../views/PatternList.vue';
+// @ts-ignore
+import Info from '../views/Info.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +44,11 @@ const router = createRouter({
       path: '/pattern-list',
       name: 'pattern-list',
       component: PatternList
+    },
+    {
+      path: '/info',
+      name: 'info',
+      component: Info
     }
   ]
 })

@@ -263,6 +263,7 @@
     onMounted(() => {
         console.log('MOUNTED')
         
+        $('#dropdown-content').addClass('display-none');
         loadMapAndSockets();
 
     });
