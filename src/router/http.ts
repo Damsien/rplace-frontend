@@ -8,7 +8,7 @@ http.interceptors.response.use(undefined, async function (err) {
   if (err.response.status == 401) {
     if(!await refreshToken()) {
       localStorage.clear();
-      router.push('/login');
+      router.push('/login?redirect=401');
     } else {
       window.location.reload();
     }
