@@ -18,7 +18,16 @@ const router = createRouter({
     {
       path: '/',
       name: 'place',
-      component: Place
+      component: Place,
+      beforeEnter: (to, from, next) => {
+          const uri = to.query.uri?.toString();
+          if (uri != null && uri != '/') {
+              next(false);
+              router.push(uri);
+          } else {
+              next();
+          }
+      }
     },
     {
       path: '/login',

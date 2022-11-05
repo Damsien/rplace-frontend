@@ -13,7 +13,7 @@ import { useColorsStore } from './stores/colors';
       'Authorization': `Bearer ${TOKEN}`
   };
 
-  export const socket = io(`http://${import.meta.env.VITE_APP_BACKEND_URL}`, {
+  export const socket = io(`http://${window.env.VITE_APP_BACKEND_URL}`, {
       extraHeaders: HEADERS
   });
 

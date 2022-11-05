@@ -16,7 +16,6 @@
     import { ref, onMounted, onActivated } from 'vue'
     // https://github.com/thecodealer/vue-panzoom
 
-
     const timerSts = useTimerStore();
     const mapSts = useMapStore();
     const colorsSts = useColorsStore();
@@ -94,7 +93,7 @@
     function getMapUser() {
 
         // GET MAP + USER SPECS
-        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
+        http.get(`http://${window.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -154,7 +153,7 @@
             } else {
                 patternSts.setCurrentPatternId(patternId);
             }
-            http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+            http.get(`http://${window.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
                 headers: HEADERS,
                 method: 'GET',
             }).then(res => {
@@ -352,7 +351,7 @@
 
 
     function displaySticked(coord_x: number, coord_y: number) {
-        http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel`, {
+        http.get(`http://${window.env.VITE_APP_BACKEND_API_URL}/pixel`, {
             params: {
                 coord_x: coord_x,
                 coord_y: coord_y

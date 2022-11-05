@@ -19,7 +19,7 @@ $(function() {
 
 // When the user reaches the page
 onActivated(() => {
-    http.get(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/all`, {
+    http.get(`http://${window.env.VITE_APP_BACKEND_API_URL}/pattern/all`, {
         headers: HEADERS,
         method: 'GET',
     }).then(res => {
@@ -49,7 +49,7 @@ function onRemove(e: any | Event, type: string, name: string) {
 }
 
 function doDelete() {
-    http.delete(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternsSts.deleteId}`, {
+    http.delete(`http://${window.env.VITE_APP_BACKEND_API_URL}/pattern/${patternsSts.deleteId}`, {
         headers: HEADERS,
         method: 'DELETE',
     }).then(res => {
@@ -61,7 +61,7 @@ function createPattern() {
     const name = $('#name').val()?.toString();
     const regex = /^[^\/|^\n]+$/;
     if (name?.match(regex)) {
-        http.post(`http://${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern`, {
+        http.post(`http://${window.env.VITE_APP_BACKEND_API_URL}/pattern`, {
             patternName: name
         }, {
             headers: HEADERS,
