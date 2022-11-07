@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export async function refreshToken(): Promise<boolean> {
     try {
-        const res = await axios.post(`http://${window.env.VITE_APP_BACKEND_API_URL}/refresh`, {}, {
+        const res = await axios.post(`${window.env.VITE_APP_BACKEND_API_URL}/refresh`, {}, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('REFRESH_TOKEN')}`
             }

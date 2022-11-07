@@ -44,7 +44,7 @@
         pscope = $('#pscope').val();
         username = $('#username').val();
         password = $('#password').val();
-        http.post(`http://${window.env.VITE_APP_BACKEND_API_URL}/login`, {
+        http.post(`${window.env.VITE_APP_BACKEND_API_URL}/login`, {
             "pscope": pscope,
             "username": username,
             "password": password
