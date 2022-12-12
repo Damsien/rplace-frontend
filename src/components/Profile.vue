@@ -6,7 +6,7 @@
 
     $(function () {
 
-        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/username`, {
+        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/username`, {
             headers: HEADERS,
             method: 'GET'
         }).then(res => {

@@ -44,9 +44,6 @@
                 pixel.color[2]
             )).slice(-6);
             setPixelBorder(pixel);
-            pixel.coord_x = (pixel.coord_x / 10)+2;
-            pixel.coord_y = (pixel.coord_y / 10)+1;
-            pixelSts.setPixel(pixel);
         }
     }
 
@@ -55,7 +52,8 @@
             if (x < 0 || y < 0 || x > (mapSts.width*10)-1 || y > (mapSts.width*10)-1) {
                 return;
             }
-            removeLastSelector(selector.x, selector.y)
+            removeLastSelector(selector.x, selector.y);
+            pixelSts.setCoords((x/10)+1, (y/10)+1);
         }
 
         selector = {x:x, y:y};
@@ -100,7 +98,7 @@
     function getCurrentPattern() {
         console.log('get pattern')
         // GET CURRENT PATTERN
-        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
+        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -125,7 +123,7 @@
         ctx = canvas.getContext('2d');
         
         // USER SPECS
-        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
+        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -256,6 +254,21 @@
                         placePixel()
                         break;
                 }
+                // if (key == 'ArrowLeft') {
+                //     setSelector(selector.x-10, selector.y);
+                // }
+                // else if (key == 'ArrowRight') {
+                //     setSelector(selector.x+10, selector.y);
+                // }
+                // else if (key == 'ArrowUp') {
+                //     setSelector(selector.x, selector.y-10);
+                // }
+                // else if (key == 'ArrowDown') {
+                //     setSelector(selector.x, selector.y+10);
+                // }
+                // else if (key == 'Enter') {
+                //     placePixel();
+                // }
             }
         });
 
@@ -276,7 +289,7 @@
         if(colorSelected !== 'none' && selector) {
             // console.log("place pixel at " + selector.x + " " + selector.y);
             // console.log(colorSelected);
-            http.put(`${window.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place/${router.currentRoute.value.params.id}`, {
+            http.put(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place/${router.currentRoute.value.params.id}`, {
                 coord_x: pixelSts.pixel.coord_x,
                 coord_y: pixelSts.pixel.coord_y,
                 color: colorSelected
@@ -323,7 +336,7 @@
     }
 
     function removePixel() {
-        http.delete(`${window.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove/${router.currentRoute.value.params.id}?coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
+        http.delete(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove/${router.currentRoute.value.params.id}?coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
             headers: HEADERS,
             method: 'DELETE',
         }).then(res => {
@@ -380,6 +393,7 @@
 
 #timer-box {
     top: 5%;
+    border: solid 1px black;
 }
 
 .box-for-content {
@@ -440,6 +454,7 @@
 
 #select-pixel {
     top: 92%;
+    border: solid 1px black;
 }
 
 #parent-canvas {

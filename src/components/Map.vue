@@ -14,6 +14,7 @@
     import http from '@/router/http';
     import { HEADERS, socket } from '@/App.vue';
     import { ref, onMounted, onActivated } from 'vue'
+import { getAndSetUser } from '@/user';
     // https://github.com/thecodealer/vue-panzoom
 
     const timerSts = useTimerStore();
@@ -55,15 +56,16 @@
                 pixel.color[2]
             )).slice(-6);
             setPixel(pixel);
-            pixel.coord_x = (pixel.coord_x / 10)+2;
-            pixel.coord_y = (pixel.coord_y / 10)+1;
-            pixelSts.setPixel(pixel);
         }
     }
 
     function setSelector(x: number, y: number) {
         if(selector) {
+            if (x < 0 || y < 0 || x > (mapSts.width*10)-1 || y > (mapSts.width*10)-1) {
+                return;
+            }
             removeLastSelector(selector.x, selector.y);
+            pixelSts.setCoords((x/10)+1, (y/10)+1);
         }
 
         selector = {x:x, y:y};
@@ -93,7 +95,7 @@
     function getMapUser() {
 
         // GET MAP + USER SPECS
-        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
+        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -153,7 +155,7 @@
             } else {
                 patternSts.setCurrentPatternId(patternId);
             }
-            http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+            http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
                 headers: HEADERS,
                 method: 'GET',
             }).then(res => {
@@ -255,12 +257,21 @@
         // Check if a pattern is apply
         clearPatternMap();
         checkPattern();
+
+        if(!mountedState) {
+            // Reset the user state
+            getAndSetUser(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/spec`);
+        }
+
+        mountedState = false;
     })
 
+    var mountedState: boolean = false;
 
     // First page load
     onMounted(() => {
         console.log('MOUNTED')
+        mountedState = true;
         
         $('#dropdown-content').addClass('display-none');
         loadMapAndSockets();
@@ -351,7 +362,7 @@
 
 
     function displaySticked(coord_x: number, coord_y: number) {
-        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pixel`, {
+        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel`, {
             params: {
                 coord_x: coord_x,
                 coord_y: coord_y
@@ -361,6 +372,8 @@
         }).then(res => {
             if (res.data.user != 'root.game') {
                 pixelSts.setUser(res.data.user);
+            } else {
+                pixelSts.setUser('');
             }
             pixelSts.setIsSticked(res.data.isSticked);
             pixelSts.setIsUserGold(res.data.isUserGold);
@@ -728,6 +741,7 @@
 
 #select-pixel {
     top: 92%;
+    border: solid 1px black;
 }
 
 #parent-canvas {

@@ -7,6 +7,7 @@
     import { HEADERS } from '@/App.vue';
     import { ref, onActivated } from 'vue'
     import router from '@/router';
+    import { getAndSetUser } from '@/user';
 
     const userSts = useUserStore();
     let kind = 'self';
@@ -16,7 +17,7 @@
     // When the user reaches on the page
     onActivated(() => {
 
-        let url = `${window.env.VITE_APP_BACKEND_API_URL}/user`;
+        let url = `${import.meta.env.VITE_APP_BACKEND_API_URL}/user`;
         if (router.currentRoute.value.params['id'] !== undefined) {
             url += '/other/'+router.currentRoute.value.params['id'];
             kind = 'other';
@@ -24,51 +25,12 @@
             url += '/spec';
             kind = 'self';
         }
- 
-        http.get(url, {
-            headers: HEADERS,
-            method: 'GET'
-        }).then(res => {
 
 
-            /*      GROUP       */
-            userSts.setGroup(res.data.group);
-            
-
-            /*      RANK        */
-            userSts.setRank(res.data.rank);
-
-
-            /*      STICKED PIXELS      */
-            userSts.setStickedPixels(res.data.stickedPixels);
-
-            /*      BOMB        */
-            userSts.setBombs(res.data.bombs);
-
-            
+        getAndSetUser(url).then(user => {
+        
             /*      PROFILE PIC     */
-            imgUrl = `https://avatars.dicebear.com/api/pixel-art/${res.data.pscope}-${res.data.username}.svg`;
-
-            /*      PIXELS PLACED   */
-            userSts.setPixelsPlaced(res.data.pixelsPlaced);
-
-            /*      GOLD NAME       */
-            userSts.setIsGold(res.data.isGold);
-
-
-            /*      USER SET        */
-            userSts.setPscope(res.data.pscope);
-            userSts.setUsername(res.data.username);
-
-
-            /*      FAVORITE COLOR  */
-            userSts.setFavColor(res.data.favColor);
-
-            /*      STEPS       */
-            userSts.clearSteps();
-            for (let step of res.data.steps) {
-                userSts.addStep(step);
-            }
+            imgUrl = `https://avatars.dicebear.com/api/pixel-art/${user.pscope}-${user.username}.svg`;
             
             try {
                 loadHtml();
@@ -144,7 +106,7 @@
 
     function linkGroup() {
         const grp = $('#grp-name').val();
-        http.put(`${window.env.VITE_APP_BACKEND_API_URL}/user/group/link`, {
+        http.put(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/group/link`, {
             "name": grp
         }, {
             headers: HEADERS,

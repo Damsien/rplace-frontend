@@ -34,6 +34,10 @@ export const usePixelStore = defineStore({
     }
   },
   actions: {
+    setCoords(x: number, y: number) {
+      this._pixel.coord_x = x;
+      this._pixel.coord_y = y;
+    },
     setPixel(pixel: Pixel) {
       this._pixel = pixel;
     },
