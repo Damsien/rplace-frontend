@@ -4,13 +4,34 @@
     import axios from 'axios';
     // @ts-ignore
     import $ from 'jquery';
+    import { onUpdated } from 'vue';
     import { onActivated } from 'vue';
 
-    $(function () {
+    onActivated(() => {
+        checkParams();
+    });
+
+    onUpdated(() => {
+        checkParams();
+    });
+
+    function checkParams() {
+        var form = document.getElementById('form');
 
         if (router.currentRoute.value.query['redirect'] == '401') {
-            $('#alert-danger').removeClass('d-none');
+            $('#401-danger').removeClass('d-none');
+            form?.classList.remove('was-validated');
         }
+
+        if (router.currentRoute.value.query['redirect'] == 'bad_cred') {
+            $('#bad_cred-danger').removeClass('d-none');
+            form?.classList.remove('was-validated');
+        }
+        
+        router.push('/login');
+    }
+
+    $(function () {
 
 
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
@@ -44,14 +65,16 @@
         pscope = $('#pscope').val();
         username = $('#username').val();
         password = $('#password').val();
-        http.post(`${import.meta.env.VITE_APP_BACKEND_API_URL}/login`, {
+        http.post(`${window.env.VITE_APP_BACKEND_API_URL}/login`, {
             "pscope": pscope,
             "username": username,
             "password": password
         }).then(res => {
-            localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
-            localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
-            router.push('/?login=true');
+            try {
+                localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
+                localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
+                router.push('/?login=true');
+            } catch (err) {}
         });
     }
 
@@ -60,11 +83,14 @@
 <template>
 
     <div id="card" class="px-4">
-        <div class="alert alert-danger d-none" role="alert" id="alert-danger">
+        <div class="alert alert-danger d-none" role="alert" id="401-danger">
             You are not authorized / not logged in
         </div>
+        <div class="alert alert-danger d-none" role="alert" id="bad_cred-danger">
+            Bad credentials
+        </div>
         <h2>Sign in</h2>
-        <form class="needs-validation" novalidate>
+        <form class="needs-validation" novalidate id="form">
             <div class="mb-3">
                 <label for="pscope" class="form-label">School</label>
                 <select required class="form-select" id="pscope">

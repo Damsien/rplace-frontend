@@ -98,7 +98,7 @@
     function getCurrentPattern() {
         console.log('get pattern')
         // GET CURRENT PATTERN
-        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -123,7 +123,7 @@
         ctx = canvas.getContext('2d');
         
         // USER SPECS
-        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/spec`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -289,7 +289,7 @@
         if(colorSelected !== 'none' && selector) {
             // console.log("place pixel at " + selector.x + " " + selector.y);
             // console.log(colorSelected);
-            http.put(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place/${router.currentRoute.value.params.id}`, {
+            http.put(`${window.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place/${router.currentRoute.value.params.id}`, {
                 coord_x: pixelSts.pixel.coord_x,
                 coord_y: pixelSts.pixel.coord_y,
                 color: colorSelected
@@ -336,7 +336,7 @@
     }
 
     function removePixel() {
-        http.delete(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove/${router.currentRoute.value.params.id}?coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
+        http.delete(`${window.env.VITE_APP_BACKEND_API_URL}/pattern-shape/remove/${router.currentRoute.value.params.id}?coord_x=${pixelSts.pixel.coord_x}&coord_y=${pixelSts.pixel.coord_y}`, {
             headers: HEADERS,
             method: 'DELETE',
         }).then(res => {

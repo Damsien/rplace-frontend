@@ -17,7 +17,7 @@
     // When the user reaches on the page
     onActivated(() => {
 
-        let url = `${import.meta.env.VITE_APP_BACKEND_API_URL}/user`;
+        let url = `${window.env.VITE_APP_BACKEND_API_URL}/user`;
         if (router.currentRoute.value.params['id'] !== undefined) {
             url += '/other/'+router.currentRoute.value.params['id'];
             kind = 'other';
@@ -106,7 +106,7 @@
 
     function linkGroup() {
         const grp = $('#grp-name').val();
-        http.put(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/group/link`, {
+        http.put(`${window.env.VITE_APP_BACKEND_API_URL}/user/group/link`, {
             "name": grp
         }, {
             headers: HEADERS,

@@ -95,7 +95,7 @@ import { getAndSetUser } from '@/user';
     function getMapUser() {
 
         // GET MAP + USER SPECS
-        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/all`, {
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
@@ -155,7 +155,7 @@ import { getAndSetUser } from '@/user';
             } else {
                 patternSts.setCurrentPatternId(patternId);
             }
-            http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
+            http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pattern/${patternId}`, {
                 headers: HEADERS,
                 method: 'GET',
             }).then(res => {
@@ -225,13 +225,10 @@ import { getAndSetUser } from '@/user';
                 // @ts-ignore
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                // @ts-ignore
                 const pixels = mapSts.pixels;
-                for (let i=0; i<pixels.length; i++) {
-                    pixels[i].coord_x++;
-                    pixels[i].coord_y++;
-                }
-                placeAllPixels(pixels);
+                pixels.forEach(pixel => {
+                    setMapPixel(pixel);
+                });
             }
             if (game.timer) {
                 timerSts.setTimer(game.timer);
@@ -260,7 +257,7 @@ import { getAndSetUser } from '@/user';
 
         if(!mountedState) {
             // Reset the user state
-            getAndSetUser(`${import.meta.env.VITE_APP_BACKEND_API_URL}/user/spec`);
+            getAndSetUser(`${window.env.VITE_APP_BACKEND_API_URL}/user/spec`);
         }
 
         mountedState = false;
@@ -362,7 +359,7 @@ import { getAndSetUser } from '@/user';
 
 
     function displaySticked(coord_x: number, coord_y: number) {
-        http.get(`${import.meta.env.VITE_APP_BACKEND_API_URL}/pixel`, {
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pixel`, {
             params: {
                 coord_x: coord_x,
                 coord_y: coord_y
@@ -415,6 +412,11 @@ import { getAndSetUser } from '@/user';
         let color = pixel['color'];
         
         ctx.fillStyle = color;
+        if (pixel.entityId != undefined) {
+            if (pixel.entityId.split('-')[0]-1 != pixel.coord_x || pixel.entityId.split('-')[1]-1 != pixel.coord_y) {
+                return;
+            }
+        }
 
         if (patternSts.pixels.find((el) => el['coord_x'] == x/10 && el['coord_y'] == y/10) !== undefined) {
             ctx.fillRect(x, y, 3, 10);
