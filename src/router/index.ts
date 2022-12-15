@@ -37,7 +37,16 @@ const router = createRouter({
     {
       path: '/user',
       name: 'user',
-      component: User
+      component: User,
+      // beforeEnter: (to, from, next) => {
+      //     const uri = to.query.uri?.toString();
+      //     if (uri != null && uri != '/') {
+      //         next(false);
+      //         router.push(uri);
+      //     } else {
+      //         next();
+      //     }
+      // }
     },
     {
       path: '/user/:id',

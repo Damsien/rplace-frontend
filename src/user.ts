@@ -1,4 +1,4 @@
-import axios from 'axios';
+import http from '@/router/http';
 import { useUserStore } from '@/stores/user';
 import { HEADERS } from '@/App.vue';
 
@@ -6,7 +6,7 @@ export async function getAndSetUser(url: string) {
 
     const userSts = useUserStore();
 
-    let res = await axios.get(url, {
+    let res = await http.get(url, {
         headers: HEADERS,
         method: 'GET'
     });

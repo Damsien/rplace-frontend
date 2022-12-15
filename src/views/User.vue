@@ -194,8 +194,8 @@
                     <button data-bs-toggle="tooltip" data-bs-placement="top"
                         :title="step.description" class="a-unstyled">
                         <div class="perm-svg">
-                            <img v-if="step.pixels < userSts.user.pixelsPlaced" :id="step.name" :src="'/src/assets/profile/'+step.img+'.svg'"/>
-                            <img v-else :id="step.name" style="filter: grayscale(80%);" :src="'/src/assets/profile/'+step.img+'.svg'"/>
+                            <img v-if="step.pixels < userSts.user.pixelsPlaced" :id="step.name" :src="'/assets/profile/'+step.img+'.svg'"/>
+                            <img v-else :id="step.name" style="filter: grayscale(80%);" :src="'/assets/profile/'+step.img+'.svg'"/>
                         </div>
                         <h4 class="text-center">{{step.pixels}} placed</h4>
                     </button>

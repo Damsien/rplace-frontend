@@ -73,7 +73,9 @@
             try {
                 localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
                 localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
-                router.push('/?login=true');
+                const beforeLog = localStorage.getItem('before-log') ?? '/';
+                localStorage.removeItem('before-log');
+                router.push(`${beforeLog}?login=true`);
             } catch (err) {}
         });
     }
