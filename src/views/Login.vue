@@ -113,6 +113,7 @@
             Bad credentials
         </div>
         <h2>Sign in</h2>
+        <p>Use your <strong>university identifiers</strong> (Planete,Moodle,ect..)</p>
         <form class="needs-validation" novalidate id="form">
             <div class="mb-3">
                 <label for="pscope" class="form-label">School</label>

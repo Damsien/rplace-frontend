@@ -116,6 +116,11 @@
         });
     }
 
+    function logout() {
+        localStorage.clear();
+        router.push('/login');
+    }
+
 </script>
 
 <template>
@@ -202,6 +207,12 @@
                     <p>{{step.description}}</p>
                 </div>
             </div>
+        </div>
+        <div class="line"></div>
+        <div class="display-inline text-center">
+            <form @submit.prevent="logout">
+                <button type="submit" class="btn btn-outline-danger">Logout</button>
+            </form>
         </div>
     </div>
 
