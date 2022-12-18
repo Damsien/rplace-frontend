@@ -5,17 +5,26 @@ import { useTimerStore } from './stores/timer';
 import { useMapStore } from './stores/map';
 import { useColorsStore } from './stores/colors';
 
-  const TOKEN = localStorage.getItem('ACCESS_TOKEN');
+/*
+window.env.VITE_APP_BACKEND_API_URL
+window.env.VITE_APP_BACKEND_API_URL
+*/
+
   export const HEADERS = {
       'Accept': '*/*',
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
-      'Authorization': `Bearer ${TOKEN}`
+      'Authorization': `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
   };
 
   export const socket = io(`${window.env.VITE_APP_BACKEND_URL}`, {
       extraHeaders: HEADERS
   });
+
+  export function updateHeaders() {
+    console.log(localStorage.getItem('ACCESS_TOKEN'))
+    HEADERS['Authorization'] = 'Bearer ' + localStorage.getItem('ACCESS_TOKEN');
+  }
 
 </script>
 

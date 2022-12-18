@@ -31,7 +31,7 @@ function onLink(e: any | Event) {
     $("#liveToast").show();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    navigator.clipboard.writeText(location.host+'?pattern='+e.currentTarget.id.split('/')[1]);
+    navigator.clipboard.writeText(location.host+'/canva/'+e.currentTarget.id.split('/')[1]);
 }
 
 function onRemove(e: any | Event, type: string, name: string) {
@@ -117,7 +117,7 @@ function createPattern() {
         <h3 id="self-h2" v-if="patternsSts.self.length != 0">Your canvas</h3>
         <ul class="list-group" v-if="patternsSts.self.length != 0">
             <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" v-for="pattern in patternsSts.self" :key="pattern.patternId" :id="'pattern/'+pattern.patternId">
-                <router-link :to="'/?pattern='+pattern.patternId" class="fw-bold">{{ pattern.name }}</router-link>
+                <router-link :to="'/canva/'+pattern.patternId" class="fw-bold">{{ pattern.name }}</router-link>
                 <div>
                     <svg @click="onLink" class="pointer link me-2" :id="'copy/'+pattern.patternId" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M18 6v-6h-18v18h6v6h18v-18h-6zm-16 10v-14h14v4h-10v10h-4z"/></svg>
                     <svg @click="(e) => onRemove(e, 'self', pattern.name)" class="pointer remove" :id="'remove/'+pattern.patternId" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M19 24h-14c-1.104 0-2-.896-2-2v-16h18v16c0 1.104-.896 2-2 2m-9-14c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6-5h-20v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2zm-12-2h4v-1h-4v1z"/></svg>
@@ -131,7 +131,7 @@ function createPattern() {
         <h3 id="bind-h2" v-if="patternsSts.bind.length != 0">Registered canvas</h3>
         <ul class="list-group" v-if="patternsSts.bind.length != 0">
             <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" v-for="pattern in patternsSts.bind" :key="pattern.patternId" :id="'pattern/'+pattern.patternId">
-                <router-link :to="'/?pattern='+pattern.patternId" class="fw-bold">{{ pattern.name }}</router-link>
+                <router-link :to="'/canva/'+pattern.patternId" class="fw-bold">{{ pattern.name }}</router-link>
                 <div>
                     <svg @click="onLink" class="pointer link me-2" :id="'copy/'+pattern.patternId" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path d="M18 6v-6h-18v18h6v6h18v-18h-6zm-16 10v-14h14v4h-10v10h-4z"/></svg>
                     <svg @click="(e) => onRemove(e, 'self', pattern.name)" class="pointer remove" :id="'remove/'+pattern.patternId" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M19 24h-14c-1.104 0-2-.896-2-2v-16h18v16c0 1.104-.896 2-2 2m-9-14c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6 0c0-.552-.448-1-1-1s-1 .448-1 1v9c0 .552.448 1 1 1s1-.448 1-1v-9zm6-5h-20v-2h6v-1.5c0-.827.673-1.5 1.5-1.5h5c.825 0 1.5.671 1.5 1.5v1.5h6v2zm-12-2h4v-1h-4v1z"/></svg>

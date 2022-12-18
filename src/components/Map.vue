@@ -147,7 +147,7 @@ import { getAndSetUser } from '@/user';
 
     function checkPattern() {
         // CHECK PATTERN
-        let patternId = router.currentRoute.value.query['pattern']?.toString();
+        let patternId = router.currentRoute.value.params.id;
         if (patternId !== undefined || patternSts.isPatternSet) {
             patternSts.setIsPatternSet(true);
             if (patternId === undefined) {
@@ -343,6 +343,7 @@ import { getAndSetUser } from '@/user';
                     setSelector(x, y);
                     displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
                 } else {
+                    pixelSts.setUser('');
                     setSelector(x, y);
                     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
                         isFree = true;

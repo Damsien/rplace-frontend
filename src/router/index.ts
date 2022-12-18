@@ -21,8 +21,13 @@ const router = createRouter({
       component: Place,
       beforeEnter: (to, from, next) => {
           const uri = to.query.uri?.toString();
-          if (uri != null && uri != '/') {
+          console.log(to)
+          console.log(uri)
+          if (uri != undefined && uri != null && uri != '/' && !uri.includes('login')) {
+              console.log('ca passe ici')
               next(false);
+              console.log('sSET ' + uri);
+              localStorage.setItem('before-log', uri);
               router.push(uri);
           } else {
               next();
@@ -37,16 +42,7 @@ const router = createRouter({
     {
       path: '/user',
       name: 'user',
-      component: User,
-      // beforeEnter: (to, from, next) => {
-      //     const uri = to.query.uri?.toString();
-      //     if (uri != null && uri != '/') {
-      //         next(false);
-      //         router.push(uri);
-      //     } else {
-      //         next();
-      //     }
-      // }
+      component: User
     },
     {
       path: '/user/:id',
@@ -67,6 +63,11 @@ const router = createRouter({
       path: '/info',
       name: 'info',
       component: Info
+    },
+    {
+      path: '/canva/:id',
+      name: 'canva',
+      component: Place
     }
   ]
 })

@@ -23,6 +23,11 @@
             form?.classList.remove('was-validated');
         }
 
+        if (router.currentRoute.value.query['redirect'] == 'forbidden') {
+            $('#forbidden-danger').removeClass('d-none');
+            form?.classList.remove('was-validated');
+        }
+
         if (router.currentRoute.value.query['redirect'] == 'bad_cred') {
             $('#bad_cred-danger').removeClass('d-none');
             form?.classList.remove('was-validated');
@@ -61,22 +66,35 @@
     let username;
     let password;
 
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
     function login() {
         pscope = $('#pscope').val();
         username = $('#username').val();
         password = $('#password').val();
+        console.log('logiiiin')
         http.post(`${window.env.VITE_APP_BACKEND_API_URL}/login`, {
             "pscope": pscope,
             "username": username,
             "password": password
-        }).then(res => {
+        }).then((res) => {
+            localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
+            localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
             try {
-                localStorage.setItem('ACCESS_TOKEN', res.data['access_token']);
-                localStorage.setItem('REFRESH_TOKEN', res.data['refresh_token']);
-                const beforeLog = localStorage.getItem('before-log') ?? '/';
-                localStorage.removeItem('before-log');
-                router.push(`${beforeLog}?login=true`);
-            } catch (err) {}
+                http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game-state`, {
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                        'Authorization': `Bearer ${res.data['access_token']}`
+                    },
+                    method: 'GET'
+                }).then(res => {
+                    const beforeLog = localStorage.getItem('before-log') ?? '/';
+                    // localStorage.removeItem('before-log');
+                    router.push(`${beforeLog}?login=true`);
+                });
+            } catch (err) { }
         });
     }
 
@@ -87,6 +105,9 @@
     <div id="card" class="px-4">
         <div class="alert alert-danger d-none" role="alert" id="401-danger">
             You are not authorized / not logged in
+        </div>
+        <div class="alert alert-danger d-none" role="alert" id="forbidden-danger">
+            The game does not take place at this time
         </div>
         <div class="alert alert-danger d-none" role="alert" id="bad_cred-danger">
             Bad credentials
