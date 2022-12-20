@@ -102,6 +102,7 @@
 
         /*      FAVORITE COLOR  */
         $('#favorite-color').css('background-color', userSts.user.favColor);
+        $('#second-favorite-color').css('background-color', userSts.user.secondFavColor);
 
 
         /*      GROUP       */
@@ -197,16 +198,20 @@
             <div id="sub-stat" class="container">
                 <div class="row">
                     <div class="col-4">
-                        <div id="favorite-color"></div>
+                        <div class="fav-col" id="favorite-color"></div>
                         <p class="text-center">favorite color</p>
                     </div>
                     <div class="col-4">
                         <h2 class="text-center">{{ userSts.user.stickedPixels }}</h2>
                         <p class="text-center">permanent tiles remaining</p>
                     </div>
-                    <div class="col-4">
+                    <div v-if="userSts.user.groupRank" class="col-4">
                         <h2 class="text-center">#{{ userSts.user.groupRank }}</h2>
                         <p class="text-center">group rank</p>
+                    </div>
+                    <div v-else class="col-4">
+                        <div class="fav-col" id="second-favorite-color"></div>
+                        <p class="text-center">2° favorite color</p>
                     </div>
                     <!--<div class="col-4">
                         <h2 class="text-center">{{ userSts.user.bombs }}</h2>
@@ -266,7 +271,7 @@
     margin-top: 20px;
 }
 
-#favorite-color {
+.fav-col {
     margin: auto;
     margin-top: 8% !important;
     margin-bottom: 0.5rem !important;

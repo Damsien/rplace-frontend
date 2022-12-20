@@ -41,8 +41,9 @@ export async function getAndSetUser(url: string) {
     userSts.setUsername(res.data.username);
 
 
-    /*      FAVORITE COLOR  */
+    /*      FAVORITEs COLOR */
     userSts.setFavColor(res.data.favColor);
+    userSts.setSecondFavColor(res.data.secondFavColor);
 
     /*      STEPS       */
     userSts.clearSteps();

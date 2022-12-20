@@ -19,6 +19,7 @@ export type User = {
     steps: Step[];
     group: string;
     groupRank: number;
+    secondFavColor: string;
 };
 
 export const useUserStore = defineStore({
@@ -35,7 +36,8 @@ export const useUserStore = defineStore({
       favColor: '',
       steps: [],
       group: '',
-      groupRank: 100
+      groupRank: 100,
+      secondFavColor: ''
     } as User
   }),
   getters: {
@@ -80,6 +82,9 @@ export const useUserStore = defineStore({
     },
     setGroupRank(rank: number) {
         this._user.groupRank = rank;
+    },
+    setSecondFavColor(color: string) {
+        this._user.secondFavColor = color
     }
   }
 })

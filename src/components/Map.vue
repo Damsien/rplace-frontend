@@ -245,6 +245,7 @@
     // Each time the user reach the page
     onActivated(() => {
         console.log('ACTIVATED')
+        console.log('Is socket connected ? ' + socket.connected)
         // If the component was already mounted without being logged -> the map will not be loaded anymore
         // So we need to reload the website
         if (router.currentRoute.value.query['login'] === 'true') {
@@ -272,7 +273,8 @@
 
         socket.on('disconnect', (reason) => {
             console.log("SOCKET DISCONNECTED")
-            console.log(reason)
+            console.log('Reason : ' + reason)
+            console.log('Is socket connected ? ' + socket.connected)
         });
         socket.on('connect', function(){
             console.log("SOCKET CONNECTED")
@@ -281,15 +283,15 @@
             // socket.auth.token = "abcd";
             // socket.connect();
             console.log("SOCKET ERROR")
-            console.log(socket.connected)
+            console.log('Is socket connected ? ' + socket.connected)
         });
         socket.io.on("reconnection_attempt", () => {
             console.log("SOCKET reconnection_attempt")
-            console.log(socket.connected)
+            console.log('Is socket connected ? ' + socket.connected)
         });
         socket.io.on("reconnect", () => {
             console.log("SOCKET reconnect")
-            console.log(socket.connected)
+            console.log('Is socket connected ? ' + socket.connected)
         });
         
         $('#dropdown-content').addClass('display-none');
