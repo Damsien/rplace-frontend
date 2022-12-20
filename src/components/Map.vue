@@ -269,6 +269,28 @@
     onMounted(() => {
         console.log('MOUNTED')
         mountedState = true;
+
+        socket.on('disconnect', (reason) => {
+            console.log("SOCKET DISCONNECTED")
+            console.log(reason)
+        });
+        socket.on('connect', function(){
+            console.log("SOCKET CONNECTED")
+        });
+        socket.on("connect_error", () => {
+            // socket.auth.token = "abcd";
+            // socket.connect();
+            console.log("SOCKET ERROR")
+            console.log(socket.connected)
+        });
+        socket.io.on("reconnection_attempt", () => {
+            console.log("SOCKET reconnection_attempt")
+            console.log(socket.connected)
+        });
+        socket.io.on("reconnect", () => {
+            console.log("SOCKET reconnect")
+            console.log(socket.connected)
+        });
         
         $('#dropdown-content').addClass('display-none');
         loadMapAndSockets();
