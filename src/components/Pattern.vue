@@ -96,7 +96,6 @@
     }
 
     function getCurrentPattern() {
-        console.log('get pattern')
         // GET CURRENT PATTERN
         http.get(`${window.env.VITE_APP_BACKEND_API_URL}/pattern/${router.currentRoute.value.params.id}`, {
             headers: HEADERS,
@@ -341,7 +340,7 @@
             method: 'DELETE',
         }).then(res => {
             if (res !== undefined) {
-                console.log("remove pixel at " + selector.x + " " + selector.y);
+                // console.log("remove pixel at " + selector.x + " " + selector.y);
                 setPatternPixel(selector.x, selector.y);
             }
         });

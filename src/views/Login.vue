@@ -72,7 +72,6 @@
         pscope = $('#pscope').val();
         username = $('#username').val();
         password = $('#password').val();
-        console.log('logiiiin')
         http.post(`${window.env.VITE_APP_BACKEND_API_URL}/login`, {
             "pscope": pscope,
             "username": username,

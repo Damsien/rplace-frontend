@@ -21,12 +21,8 @@ const router = createRouter({
       component: Place,
       beforeEnter: (to, from, next) => {
           const uri = to.query.uri?.toString();
-          console.log(to)
-          console.log(uri)
           if (uri != undefined && uri != null && uri != '/' && !uri.includes('login')) {
-              console.log('ca passe ici')
               next(false);
-              console.log('sSET ' + uri);
               localStorage.setItem('before-log', uri);
               router.push(uri);
           } else {

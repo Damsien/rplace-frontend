@@ -7,8 +7,6 @@ import { updateHeaders } from '@/App.vue';
 const http = axios.create();
 
 http.interceptors.request.use(function (config) {
-  console.log('local storaaage')
-  // console.log(localStorage.getItem('ACCESS_TOKEN'))
   updateHeaders()
   // config.headers['Authorization'] = `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`;
   return config;

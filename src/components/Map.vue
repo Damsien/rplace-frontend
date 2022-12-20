@@ -8,13 +8,12 @@
     import { usePatternStore } from '@/stores/pattern.js';
     import axios from 'axios';
     import $, { map } from 'jquery';
-    import io from "socket.io-client";
     import { refreshToken } from '@/auth.js';
     import panzoom from 'panzoom';
     import http from '@/router/http';
     import { HEADERS, socket } from '@/App.vue';
     import { ref, onMounted, onActivated } from 'vue'
-import { getAndSetUser } from '@/user';
+    import { getAndSetUser } from '@/user';
     // https://github.com/thecodealer/vue-panzoom
 
     const timerSts = useTimerStore();
@@ -245,6 +244,7 @@ import { getAndSetUser } from '@/user';
 
     // Each time the user reach the page
     onActivated(() => {
+        console.log('ACTIVATED')
         // If the component was already mounted without being logged -> the map will not be loaded anymore
         // So we need to reload the website
         if (router.currentRoute.value.query['login'] === 'true') {

@@ -43,7 +43,7 @@ export const usePixelStore = defineStore({
     },
     setUser(user: string) {
       this._pixel.user = user;
-      console.log(this._pixel.user);
+      // console.log(this._pixel.user);
     },
     setIsSticked(isSticked: boolean) {
       this._pixel.isSticked = isSticked;

@@ -6,8 +6,8 @@ import { useMapStore } from './stores/map';
 import { useColorsStore } from './stores/colors';
 
 /*
-window.env.VITE_APP_BACKEND_API_URL
-window.env.VITE_APP_BACKEND_API_URL
+w_indow.env.VITE_APP_BACKEND_API_URL
+i_mport.meta.env.VITE_APP_BACKEND_API_URL
 */
 
   export const HEADERS = {
@@ -22,7 +22,6 @@ window.env.VITE_APP_BACKEND_API_URL
   });
 
   export function updateHeaders() {
-    console.log(localStorage.getItem('ACCESS_TOKEN'))
     HEADERS['Authorization'] = 'Bearer ' + localStorage.getItem('ACCESS_TOKEN');
   }
 
