@@ -76,6 +76,8 @@
         /*      GOLD NAME       */
         if(userSts.user.isGold) {
             $('#username').css('color', '#F1BD09');
+        } else {
+            $('#username').css('color', '#3a3a3a');
         }
 
         /*      USER SET        */
@@ -186,9 +188,13 @@
                         <p class="text-center">permanent tiles remaining</p>
                     </div>
                     <div class="col-4">
+                        <h2 class="text-center">#{{ userSts.user.groupRank }}</h2>
+                        <p class="text-center">group rank</p>
+                    </div>
+                    <!--<div class="col-4">
                         <h2 class="text-center">{{ userSts.user.bombs }}</h2>
                         <p class="text-center">bombs remaining</p>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </div>

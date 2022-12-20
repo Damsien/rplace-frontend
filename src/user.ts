@@ -13,10 +13,14 @@ export async function getAndSetUser(url: string) {
 
     /*      GROUP       */
     userSts.setGroup(res.data.group);
-        
+
 
     /*      RANK        */
     userSts.setRank(res.data.rank);
+
+
+    /*      GROUP RANK          */
+    userSts.setGroupRank(res.data.groupRank);
 
 
     /*      STICKED PIXELS      */
