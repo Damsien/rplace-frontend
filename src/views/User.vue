@@ -44,6 +44,19 @@
     // When document is ready
     $(function () {
         loadHtml();
+        
+        if (kind == 'self') {
+            if (!userSts.user.group) {
+                http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/groups`, {
+                    headers: HEADERS,
+                    method: 'GET'
+                }).then((res) => {
+                    for (let group of res.data) {
+                        $('#grp-name').append(`<option value="${group.name}">${group.name}</option>`);
+                    }
+                });
+            }
+        }
     });
 
     function loadHtml() {
@@ -104,10 +117,13 @@
             $('#group-html1').removeClass('d-none');
             $('#group-html2').removeClass('d-none');
         }
+
+
+
     }
 
     function linkGroup() {
-        const grp = $('#grp-name').val();
+        const grp = $('#grp-name').find(":selected").val();
         http.put(`${window.env.VITE_APP_BACKEND_API_URL}/user/group/link`, {
             "name": grp
         }, {
@@ -156,7 +172,8 @@
                         <div class="col-6 pe-0"><p id="group-html1" class="float-end mt-1 mb-0">Group: </p></div>
                         <div class="text-imp col-6" id="group-html2">
                             <form @submit.prevent="linkGroup" v-if="userSts.user.group == null" class="text-start">
-                                <input type="text" id="grp-name" name="name" class="w-50 me-1">
+                                <select id="grp-name" name="name" class="w-50 me-1">
+                                </select>
                                 <button type="submit" class="btn btn-outline-primary w-25 p-0 mb-1">Link</button>
                             </form>
                             <p class="float-start mb-0" id="group">{{userSts.user.group}}</p>
