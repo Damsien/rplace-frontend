@@ -18,17 +18,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'place',
-      component: Place,
-      beforeEnter: (to, from, next) => {
-          const uri = to.query.uri?.toString();
-          if (uri != undefined && uri != null && uri != '/' && !uri.includes('login')) {
-              next(false);
-              localStorage.setItem('before-log', uri);
-              router.push(uri);
-          } else {
-              next();
-          }
-      }
+      component: Place
     },
     {
       path: '/login',
@@ -66,6 +56,14 @@ const router = createRouter({
       component: Place
     }
   ]
+})
+
+router.beforeEach((to, from) => {
+  const path = to.fullPath;
+  if (!path.includes('login')) {
+    localStorage.setItem('before-log', to.fullPath);
+  }
+  return true
 })
 
 export default router;
