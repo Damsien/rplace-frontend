@@ -8,7 +8,6 @@ COPY . .
 RUN rm -rf ./nodes_modules
 RUN rm -rf ./dist
 
-RUN npm config set https-proxy http://dino.ecocenter.fr:2831
 RUN npm install yarn --legacy-peer-deps
 
 RUN yarn install
