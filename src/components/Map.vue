@@ -284,14 +284,17 @@
             // socket.connect();
             console.log("SOCKET ERROR")
             console.log('Is socket connected ? ' + socket.connected)
+            location.reload();
         });
         socket.io.on("reconnection_attempt", () => {
             console.log("SOCKET reconnection_attempt")
             console.log('Is socket connected ? ' + socket.connected)
+            location.reload();
         });
         socket.io.on("reconnect", () => {
             console.log("SOCKET reconnect")
             console.log('Is socket connected ? ' + socket.connected)
+            location.reload();
         });
         
         $('#dropdown-content').addClass('display-none');
