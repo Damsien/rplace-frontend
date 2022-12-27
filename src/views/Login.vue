@@ -63,14 +63,16 @@
 
 
     let pscope;
-    let username;
+    let username: string;
     let password;
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     function login() {
         pscope = $('#pscope').val();
+        // @ts-ignore
         username = $('#username').val();
+        username = username.replace(/^\s+|\s+$/gm,'');
         password = $('#password').val();
         http.post(`${window.env.VITE_APP_BACKEND_API_URL}/login`, {
             "pscope": pscope,

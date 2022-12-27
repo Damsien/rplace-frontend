@@ -230,7 +230,9 @@
                 });
             }
             if (game.timer) {
-                timerSts.setTimer(game.timer);
+                console.log(game.timer)
+                console.log(timerSts.timer+(game.timer))
+                timerSts.setTimer(timerSts.timer+(game.timer));
             }
             if (game.colors) {
                 colorsSts.clearColors();
