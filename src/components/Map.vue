@@ -281,10 +281,11 @@
         socket.on('connect', function(){
             console.log("SOCKET CONNECTED")
         });
-        socket.on("connect_error", () => {
-            // socket.auth.token = "abcd";
+        socket.on("connect_error", (err) => {
+            socket.auth.token = localStorage.getItem('ACCESS_TOKEN');
             // socket.connect();
             console.log("SOCKET ERROR")
+            console.log(err)
             console.log('Is socket connected ? ' + socket.connected)
             location.reload();
         });
