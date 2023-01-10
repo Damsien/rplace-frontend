@@ -85,6 +85,22 @@ export const useUserStore = defineStore({
     },
     setSecondFavColor(color: string) {
         this._user.secondFavColor = color
+    },
+    clearUser() {
+        this._user = {
+            pixelsPlaced: 0,
+            isGold: false,
+            rank: 100,
+            bombs: 0,
+            stickedPixels: 0,
+            pscope: '',
+            username: '',
+            favColor: '',
+            steps: [],
+            group: '',
+            groupRank: 100,
+            secondFavColor: ''
+        } as User
     }
   }
 })

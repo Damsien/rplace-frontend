@@ -138,6 +138,7 @@
     function logout() {
         localStorage.clear();
         router.push('/login');
+        userSts.clearUser();
     }
 
 </script>

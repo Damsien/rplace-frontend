@@ -1,0 +1,16 @@
+{
+    "short_name": "INPlace",
+    "name": "INPlace",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "type": "image/png",
+            "sizes": "1200x1200"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#3A3A3A",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#3A3A3A"
+}
