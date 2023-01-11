@@ -17,12 +17,18 @@ i_mport.meta.env.VITE_APP_BACKEND_API_URL
       'Authorization': `Bearer ${localStorage.getItem('ACCESS_TOKEN')}`
   };
 
-  export const socket = io(`${window.env.VITE_APP_BACKEND_URL}`, {
+  export var socket = io(`${window.env.VITE_APP_BACKEND_URL}`, {
       extraHeaders: HEADERS
   });
 
   export function updateHeaders() {
     HEADERS['Authorization'] = 'Bearer ' + localStorage.getItem('ACCESS_TOKEN');
+    socket = io(`${window.env.VITE_APP_BACKEND_URL}`, {
+      extraHeaders: HEADERS
+    });
+    // if (localStorage.getItem('ACCESS_TOKEN') !== null) {
+    //   socket.auth.token = localStorage.getItem('ACCESS_TOKEN');
+    // }
   }
 
 </script>

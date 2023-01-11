@@ -11,7 +11,7 @@
     import { refreshToken } from '@/auth.js';
     import panzoom from 'panzoom';
     import http from '@/router/http';
-    import { HEADERS, socket } from '@/App.vue';
+    import { HEADERS, socket, updateHeaders } from '@/App.vue';
     import { ref, onMounted, onActivated } from 'vue'
     import { getAndSetUser } from '@/user';
     // https://github.com/thecodealer/vue-panzoom
@@ -89,6 +89,7 @@
         ctx.fillRect(x+8, y+9, 2, 1);
     }
 
+    var timer;
 
     // On the the website loading
     function getMapUser() {
@@ -128,13 +129,6 @@
             // APPLY STATES
             setMap(mapSts.width, mapSts.pixels);
             checkStickedPixels(userSts.user.stickedPixels);
-
-            // TIMER
-            const timer = setInterval(() => {
-                if (timerSts.timeleft > 0) {
-                    timerSts.setTimeleft(timerSts.timeleft-1);
-                }
-            }, 1000);
 
             
             // CHECK PATTERNS
@@ -248,6 +242,7 @@
     onActivated(() => {
         console.log('ACTIVATED')
         console.log('Is socket connected ? ' + socket.connected)
+
         // If the component was already mounted without being logged -> the map will not be loaded anymore
         // So we need to reload the website
         if (router.currentRoute.value.query['login'] === 'true') {
@@ -271,6 +266,7 @@
     // First page load
     onMounted(() => {
         console.log('MOUNTED')
+
         mountedState = true;
 
         socket.on('disconnect', (reason) => {
@@ -282,8 +278,13 @@
             console.log("SOCKET CONNECTED")
         });
         socket.on("connect_error", (err) => {
-            socket.auth.token = localStorage.getItem('ACCESS_TOKEN');
+            // if (localStorage.getItem('ACCESS_TOKEN') !== null) {
+            //         socket.auth.token = localStorage.getItem('ACCESS_TOKEN');
+            // }
+            updateHeaders();
+
             // socket.connect();
+
             console.log("SOCKET ERROR")
             console.log(err)
             console.log('Is socket connected ? ' + socket.connected)
@@ -302,6 +303,13 @@
         
         $('#dropdown-content').addClass('display-none');
         loadMapAndSockets();
+
+        // TIMER
+        timer = setInterval(() => {
+            // if (timerSts.timeleft >= 0) {
+            timerSts.setTimeleft(timerSts.timeleft-1);
+            // }
+        }, 1000);
 
     });
 
@@ -584,6 +592,7 @@
                 userSts.setStickedPixels(userSts.user.stickedPixels-1);
                 checkStickedPixels(userSts.user.stickedPixels);
             }
+            // updateHeaders()
             socket.emit('placePixel', {
                 "coord_x": coordX,
                 "coord_y": coordY,

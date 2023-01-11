@@ -17,7 +17,11 @@ export const useTimerStore = defineStore({
     second: (state) => {
       let decimal = state._timer.timeleft/60 - Math.floor(state._timer.timeleft/60);
       let seconds = ((decimal*100) * 60) / 100;
-      return Math.ceil(seconds);
+      if (Math.ceil(seconds) >= 0)
+        return Math.ceil(seconds);
+      else {
+        return 0;
+      }
     }
   },
   actions: {
