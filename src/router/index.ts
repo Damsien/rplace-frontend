@@ -16,11 +16,24 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      beforeEnter: (to, from) => {
+        if (to.query['link'] && to.query['link'] != '/') {
+          let isLogin = `?login=${to.query['login']}` ?? ''
+          router.push(to.query['link']+isLogin)
+        }
+        return true;
+      },
       path: '/',
       name: 'place',
       component: Place
     },
     {
+      beforeEnter: (to, from) => {
+        if (localStorage.getItem('ACCESS_TOKEN')) {
+          router.push(localStorage.getItem('before-log') ?? to.fullPath);
+        }
+        return true;
+      },
       path: '/login',
       name: 'login',
       component: Login
@@ -59,9 +72,16 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-  const path = to.fullPath;
-  if (!path.includes('login')) {
+  if (!to.fullPath.includes('login')) {
     localStorage.setItem('before-log', to.fullPath);
+    if (to.query['canva']) {
+      localStorage.setItem('before-log', to.path+'/canva/'+to.query['canva']);
+    }
+  } else {
+    if (to.query['link']) {
+      localStorage.setItem('before-log', to.query['link']);
+    }
+    to.fullPath = `/login?link=${localStorage.getItem('before-log') ?? ''}`
   }
   return true
 })

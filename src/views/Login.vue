@@ -91,9 +91,9 @@
                     },
                     method: 'GET'
                 }).then(res => {
-                    const beforeLog = localStorage.getItem('before-log') ?? '/';
+                    const beforeLog = localStorage.getItem('before-log') ?? '';
                     // localStorage.removeItem('before-log');
-                    router.push(`${beforeLog}?login=true`);
+                    router.push(`/?link=${beforeLog}&login=true`);
                 });
             } catch (err) { }
         });

@@ -89,8 +89,6 @@
         ctx.fillRect(x+8, y+9, 2, 1);
     }
 
-    var timer;
-
     // On the the website loading
     function getMapUser() {
 
@@ -304,13 +302,6 @@
         $('#dropdown-content').addClass('display-none');
         loadMapAndSockets();
 
-        // TIMER
-        timer = setInterval(() => {
-            // if (timerSts.timeleft >= 0) {
-            timerSts.setTimeleft(timerSts.timeleft-1);
-            // }
-        }, 1000);
-
     });
 
 
@@ -357,9 +348,9 @@
         });
 
 
-        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            isFree = false;
-        }
+        // if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        isFree = false;
+        // }
         // PIXEL SELECTION
         canvas.addEventListener('mousemove', function(e) {
             if(!isPanning && isFree) {
@@ -383,11 +374,11 @@
                 } else {
                     pixelSts.setUser('');
                     setSelector(x, y);
-                    if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
-                        isFree = true;
-                    } else {
-                        displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
-                    }
+                    // if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
+                        // isFree = true;
+                    // } else {
+                    displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
+                    // }
                 }
             }
         }
@@ -556,7 +547,7 @@
             unsetPatternPixel(pixel);
         });
         patternSts.setPixels([]);
-        router.push('/');
+        // router.push('/');
     }
 
     function unsetPatternMap() {
@@ -655,12 +646,13 @@
             <div class="dropdown mt-2">
                 <form @submit.prevent="placeNormalPixel">
                     <div id="dropdown-content" class="dropdown-content">
-                        <form @submit.prevent="placePixel">
+                        <!-- <form @submit.prevent="placePixel">
                             <button type="submit">Normal</button>
                         </form>
                         <form @submit.prevent="placePermanentPixel">
                             <button type="submit">Permanent</button>
-                        </form>
+                        </form> -->
+                        <input type="checkbox">
                     </div>
                     <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
                     <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg>

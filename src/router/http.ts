@@ -13,6 +13,7 @@ http.interceptors.request.use(function (config) {
 });
 
 http.interceptors.response.use(undefined, async function (err) {
+
   if (err.response.status == 401) {
     if(!await refreshToken()) {
       // router.push('/login?redirect=401');

@@ -31,6 +31,21 @@ i_mport.meta.env.VITE_APP_BACKEND_API_URL
     // }
   }
 
+  let timerSts;
+
+  // TIMER
+  var timer = setInterval(() => {
+    // if (timerSts.timeleft >= 0) {
+    if (timerSts !== undefined) {
+      timerSts.setTimeleft(timerSts.timeleft-1);
+    } else {
+      try {
+        timerSts = useTimerStore();
+      } catch (err) {}
+    }
+    // }
+  }, 1000);
+
 </script>
 
 <template>
