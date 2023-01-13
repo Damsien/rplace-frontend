@@ -155,6 +155,7 @@
                 }
                 setPatternMap(res.data);
             });
+            // router.replace('/');
         } else {
             clearPatternMap();
         }
@@ -570,7 +571,7 @@
 
     function unsetPatternMap() {
         clearPatternMap();
-        router.push('/');
+        router.replace('/');
     }
 
 
@@ -595,6 +596,10 @@
             if (perm) {
                 userSts.setStickedPixels(userSts.user.stickedPixels-1);
                 checkStickedPixels(userSts.user.stickedPixels, isSticked);
+                if (userSts.user.stickedPixels <= 0) {
+                    $('#perm-checkbox').prop('checked', false);
+                    permCheck();
+                }
             }
             // updateHeaders()
             socket.emit('placePixel', {

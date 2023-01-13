@@ -16,14 +16,15 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      beforeEnter: (to, from) => {
-        if (to.query['link'] && to.query['link'] != '/') {
-          let isLogin = `?login=${to.query['login']}` ?? ''
-          router.push(to.query['link']+isLogin)
-        }
-        return true;
-      },
+      // beforeEnter: (to, from) => {
+      //   if (to.query['link'] && to.query['link'] != '/') {
+      //     let isLogin = `?login=${to.query['login']}` ?? ''
+      //     router.push(to.query['link']+isLogin)
+      //   }
+      //   return true;
+      // },
       path: '/',
+      alias: '/canva/:id',
       name: 'place',
       component: Place
     },
@@ -63,11 +64,11 @@ const router = createRouter({
       name: 'info',
       component: Info
     },
-    {
-      path: '/canva/:id',
-      name: 'canva',
-      component: Place
-    }
+    // {
+    //   path: '/canva/:id',
+    //   name: 'canva',
+    //   component: Place
+    // }
   ]
 })
 
