@@ -15,6 +15,8 @@ http.interceptors.request.use(function (config) {
 http.interceptors.response.use(undefined, async function (err) {
 
   if (err.response.status == 401) {
+    localStorage.removeItem('ACCESS_TOKEN');
+    localStorage.removeItem('REFRESH_TOKEN');
     if(!await refreshToken()) {
       // router.push('/login?redirect=401');
       if (err.config.url.includes('login')) {
@@ -28,6 +30,8 @@ http.interceptors.response.use(undefined, async function (err) {
   }
 
   if (err.response.status == 403) {
+    localStorage.removeItem('ACCESS_TOKEN');
+    localStorage.removeItem('REFRESH_TOKEN');
     router.push('/login?redirect=forbidden');
   }
 });

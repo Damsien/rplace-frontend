@@ -2,6 +2,11 @@
 // @ts-ignore
 import Pattern from '@/components/Pattern.vue'
 import router from '@/router/index';
+import { usePatternStore } from '@/stores/pattern.js';
+
+const patternSts = usePatternStore();
+
+patternSts.setIsPatternSet(false);
 </script>
 
 <template>

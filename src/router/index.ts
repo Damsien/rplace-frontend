@@ -30,7 +30,7 @@ const router = createRouter({
     {
       beforeEnter: (to, from) => {
         if (localStorage.getItem('ACCESS_TOKEN')) {
-          router.push(localStorage.getItem('before-log') ?? to.fullPath);
+          router.push(localStorage.getItem('before-log') ?? '/');
         }
         return true;
       },

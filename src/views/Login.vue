@@ -1,11 +1,14 @@
 <script setup lang="ts">
     import http from '@/router/http';
     import router from '@/router/index';
+    import { useUserStore } from '@/stores/user.js';
     import axios from 'axios';
     // @ts-ignore
     import $ from 'jquery';
     import { onUpdated } from 'vue';
     import { onActivated } from 'vue';
+
+    const userSts = useUserStore();
 
     onActivated(() => {
         checkParams();
@@ -66,8 +69,6 @@
     let username: string;
     let password;
 
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
     function login() {
         pscope = $('#pscope').val();
         // @ts-ignore
@@ -91,6 +92,8 @@
                     },
                     method: 'GET'
                 }).then(res => {
+                    userSts.setPscope(pscope);
+                    userSts.setUsername(username);
                     const beforeLog = localStorage.getItem('before-log') ?? '';
                     // localStorage.removeItem('before-log');
                     router.push(`/?link=${beforeLog}&login=true`);

@@ -24,7 +24,7 @@
     const patternSts = usePatternStore();
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
-    var isFree = true;
+    var isFree = false;
     var lastPixelPlaced: Date;
     var perm = false;
 
@@ -126,7 +126,7 @@
 
             // APPLY STATES
             setMap(mapSts.width, mapSts.pixels);
-            checkStickedPixels(userSts.user.stickedPixels);
+            checkStickedPixels(userSts.user.stickedPixels, pixelSts.pixel.isSticked);
 
             
             // CHECK PATTERNS
@@ -151,23 +151,37 @@
                 method: 'GET',
             }).then(res => {
                 if (res === undefined) {
-                    unsetPatternMap();
+                    clearPatternMap();
                 }
                 setPatternMap(res.data);
             });
+        } else {
+            clearPatternMap();
         }
     }
 
 
-    function checkStickedPixels(pxl: number) {
-        if (pxl == 0) {
-            $('#dropdown-content').addClass('display-none');
+    function checkStickedPixels(pxl: number, isSticked: boolean) {
+        if (isSticked) {
+            $('#place-pixel').addClass('btn-secondary');
+            $('#place-pixel').removeClass('btn-primary');
+            if (pxl > 0) {
+                $('#perm-checkbox-input').removeClass('display-none');
+                if ($('#perm-checkbox').is(':checked')) {
+                    $('#place-pixel').removeClass('btn-secondary');
+                    $('#place-pixel').addClass('btn-primary');
+                }
+            } else {
+                $('#perm-checkbox-input').addClass('display-none');
+            }
+        } else {
+            if (pxl > 0) {
+                $('#perm-checkbox-input').removeClass('display-none');
+            } else {
+                $('#perm-checkbox-input').addClass('display-none');
+            }
             $('#place-pixel').removeClass('btn-secondary');
             $('#place-pixel').addClass('btn-primary');
-        } else {
-            $('#dropdown-content').removeClass('display-none');
-            $('#place-pixel').removeClass('btn-primary');
-            $('#place-pixel').addClass('btn-secondary');
         }
     }
 
@@ -191,7 +205,7 @@
         socket.on('user', user => {
             if (user.stickedPixels) {
                 userSts.setStickedPixels(user.stickedPixels)
-                checkStickedPixels(userSts.user.stickedPixels);
+                checkStickedPixels(userSts.user.stickedPixels, pixelSts.pixel.isSticked);
             }
             if (user.bombs) {
                 userSts.setBombs(user.bombAvailable);
@@ -256,6 +270,8 @@
             getAndSetUser(`${window.env.VITE_APP_BACKEND_API_URL}/user/spec`);
         }
 
+        checkStickedPixels(userSts.user.stickedPixels, pixelSts.pixel.isSticked)
+
         mountedState = false;
     })
 
@@ -299,7 +315,7 @@
             location.reload();
         });
         
-        $('#dropdown-content').addClass('display-none');
+        $('#perm-checkbox-input').addClass('display-none');
         loadMapAndSockets();
 
     });
@@ -405,15 +421,17 @@
             pixelSts.setIsSticked(res.data.isSticked);
             pixelSts.setIsUserGold(res.data.isUserGold);
             if(pixelSts.pixel.isSticked) {
-                $('#place-pixel').removeClass('btn-primary');
-                $('#place-pixel').addClass('btn-secondary');
+                // $('#place-pixel').removeClass('btn-primary');
+                // $('#place-pixel').addClass('btn-secondary');
                 $('#timer-box').css('border-color', 'red');
             } else {
-                if (userSts.user.stickedPixels <= 0) {
-                    $('#place-pixel').removeClass('btn-secondary');
-                    $('#place-pixel').addClass('btn-primary');
-                }
+                // if (userSts.user.stickedPixels <= 0) {
+                    // $('#place-pixel').removeClass('btn-secondary');
+                    // $('#place-pixel').addClass('btn-primary');
+                    $('#timer-box').css('border-color', '#3A3A3A');
+                // }
             }
+            checkStickedPixels(userSts.user.stickedPixels, res.data.isSticked);
             mapSts.editPixel(res.data);
         });
     }
@@ -539,6 +557,7 @@
 
 
     function clearPatternMap() {
+        patternSts.setIsPatternSet(false);
         patternSts.pixels.forEach(pixel => {
             // @ts-ignore
             pixel['coord_x'] -= 1;
@@ -547,12 +566,11 @@
             unsetPatternPixel(pixel);
         });
         patternSts.setPixels([]);
-        // router.push('/');
     }
 
     function unsetPatternMap() {
-        patternSts.setIsPatternSet(false);
         clearPatternMap();
+        router.push('/');
     }
 
 
@@ -565,23 +583,18 @@
     }
 
 
-    function placePermanentPixel() {
-        perm = true;
-        placePixel();
-    }
-
-
     function placePixel() {
         const coordX = (selector.x / 10)+1;
         const coordY = (selector.y / 10)+1;
-        const isSticked = mapSts.pixels.find((el) => el.coord_x == coordX && el.coord_y == coordY)?.isSticked;
+        // const isSticked = mapSts.pixels.find((el) => el.coord_x == coordX && el.coord_y == coordY)?.isSticked;
+        const isSticked = pixelSts.pixel.isSticked;
         if(colorSelected !== 'none' && selector && timerSts.timeleft == 0 
          && (perm || (!isSticked && !perm))) {
             lastPixelPlaced = new Date();
             timerSts.setTimeleft(timerSts.timer);
             if (perm) {
                 userSts.setStickedPixels(userSts.user.stickedPixels-1);
-                checkStickedPixels(userSts.user.stickedPixels);
+                checkStickedPixels(userSts.user.stickedPixels, isSticked);
             }
             // updateHeaders()
             socket.emit('placePixel', {
@@ -590,15 +603,37 @@
                 "color": colorSelected,
                 "isSticked": perm
             });
+            if (userSts.user.pscope) {
+                pixelSts.setUser(`${userSts.user.pscope}.${userSts.user.username}`)
+                pixelSts.setIsUserGold(userSts.user.isGold)
+            }
+            pixelSts.setIsSticked(perm);
+            if (perm) {
+                $('#timer-box').css('border-color', 'red');
+            }
         }
         perm = false;
     }
 
-    
-    function placeNormalPixel() {
-        if (userSts.user.stickedPixels === 0) {
-            placePixel();
+
+    function permCheck() {
+        if ($('#perm-checkbox').is(':checked')) {
+            $('#place-perm-pixel-text').removeClass('display-none')
+            $('#place-pixel-text').addClass('display-none')
+        } else {
+            $('#place-pixel-text').removeClass('display-none')
+            $('#place-perm-pixel-text').addClass('display-none')
         }
+        checkStickedPixels(userSts.user.stickedPixels, pixelSts.pixel.isSticked);
+    }
+    
+    function placePixelClick() {
+        if ($('#perm-checkbox').is(':checked')) {
+            perm = true;
+        } else {
+            perm = false;
+        }
+        placePixel();
     }
 
 
@@ -644,18 +679,38 @@
         </div>
         <div>
             <div class="dropdown mt-2">
-                <form @submit.prevent="placeNormalPixel">
-                    <div id="dropdown-content" class="dropdown-content">
-                        <!-- <form @submit.prevent="placePixel">
-                            <button type="submit">Normal</button>
-                        </form>
-                        <form @submit.prevent="placePermanentPixel">
-                            <button type="submit">Permanent</button>
-                        </form> -->
-                        <input type="checkbox">
+                <form @submit.prevent="placePixelClick">
+                    <div id="perm-checkbox-input" class="d-inline-block me-2" style="top: 5px;">
+                        <input type="checkbox" id="perm-checkbox" @change="permCheck" />
+                        <label title="Set permanent pixel" for="perm-checkbox" class="square-checkbox cursor-pointer"></label>
                     </div>
-                    <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
-                    <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg>
+                    <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">
+                        <p id="place-pixel-text" class="text-white mb-0">Place pixel</p>
+                        <p id="place-perm-pixel-text" class="display-none text-white mb-0">{{userSts.user.stickedPixels}} remaining</p>
+                    </button>
+                    <!-- <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg> -->
+                    <svg fill="#000000" class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                        viewBox="0 0 457.756 457.756" xml:space="preserve">
+                    <title>Clear canva</title>
+                    <path d="M455.413,35.596c-3.125-3.123-8.189-3.123-11.314,0L290.501,189.195l-21.94-21.94L422.159,13.657
+                        c3.124-3.125,3.124-8.189,0-11.314c-3.124-3.122-8.188-3.123-11.314,0L257.246,155.94l-11.656-11.656
+                        c-4.521-4.521-10.548-7.01-16.972-7.01c-6.423,0-12.45,2.489-16.971,7.01l-5.656,5.656c-6.717,6.717-8.585,16.451-5.659,24.874
+                        c-75.593,36.5-142.949,66.335-195.204,86.455c-4.015,1.546-6.088,5.988-4.694,10.058c14.684,42.887,39.388,82.499,71.442,114.553
+                        c32.054,32.055,71.666,56.759,114.553,71.442c0.858,0.294,1.731,0.434,2.592,0.434c3.222,0,6.246-1.96,7.466-5.128
+                        c20.118-52.25,49.949-119.597,86.443-195.18c2.509,0.87,5.175,1.327,7.915,1.327c6.423,0,12.45-2.489,16.971-7.01l5.656-5.656
+                        c9.357-9.358,9.357-24.584,0-33.942l-11.656-11.656L455.413,46.911C458.537,43.786,458.537,38.721,455.413,35.596z M210.015,187.906
+                        l6.193,6.192l-64.645,45.083c-3.624,2.527-4.513,7.514-1.985,11.138c1.555,2.23,4.041,3.425,6.568,3.425
+                        c1.58,0,3.176-0.467,4.569-1.439l66.984-46.715l6.576,6.576L77.617,368.823c-11.016-11.669-21.021-24.313-29.916-37.7l84.683-59.06
+                        c3.624-2.527,4.513-7.514,1.985-11.138c-2.526-3.625-7.516-4.515-11.138-1.985l-84.019,58.596
+                        c-8.267-14.094-15.346-28.881-21.055-44.165C70.364,252.928,136.39,223.517,210.015,187.906z M184.383,439.597
+                        c-15.283-5.709-30.07-12.788-44.165-21.055l15.016-21.531c2.527-3.624,1.639-8.61-1.985-11.138
+                        c-3.622-2.529-8.611-1.64-11.138,1.985l-15.479,22.195c-13.387-8.896-26.031-18.9-37.7-29.917l156.657-156.657l6.576,6.576
+                        l-89.136,127.809c-2.527,3.624-1.639,8.61,1.985,11.138c1.394,0.973,2.989,1.439,4.569,1.439c2.526,0,5.014-1.195,6.568-3.425
+                        l87.504-125.469l6.193,6.192C234.238,321.365,204.827,387.391,184.383,439.597z M302.157,234.794l-5.656,5.656
+                        c-1.498,1.499-3.507,2.324-5.656,2.324c-2.15,0-4.159-0.825-5.657-2.324l-33.931-33.931c-0.003-0.003-0.006-0.007-0.009-0.01
+                        s-0.007-0.006-0.01-0.009l-33.931-33.931c-3.12-3.119-3.12-8.194,0-11.313l5.656-5.656c1.498-1.499,3.507-2.324,5.656-2.324
+                        c2.15,0,4.159,0.825,5.657,2.324l67.882,67.882C305.277,226.599,305.277,231.674,302.157,234.794z"/>
+                    </svg>
                 </form>
             </div>
         </div>
@@ -666,44 +721,27 @@
 <style scoped>
 
 
+input[type="checkbox"] {
+    display: none;
+}
+
+label.square-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid gray;
+    display: inline-block;
+}
+
+input[type="checkbox"]:checked + label.square-checkbox {
+    border: 3px solid orange;
+    background-color: yellow;
+}
+
 .gold-user {
     color: #f1b901;
     text-shadow: 0 0 0.5px rgb(63, 63, 63);
 }
 
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  top: -60px;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: fill;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-.dropdown-content form {
-  padding: 3px;
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 2px 2px;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.dropdown-content form:hover {background-color: #dfdfdf}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
 .display-none {
   display: none !important;
 }
@@ -733,10 +771,6 @@
     cursor: pointer;
     border: solid 1px;
     border-color: black;
-}
-
-.cursor-pointer {
-    cursor: pointer;
 }
 
 .color-selected {
