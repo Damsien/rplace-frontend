@@ -96,6 +96,7 @@
                     userSts.setUsername(username);
                     const beforeLog = localStorage.getItem('before-log') ?? '';
                     // localStorage.removeItem('before-log');
+                    router.go();
                     router.push(`/?link=${beforeLog}&login=true`);
                 });
             } catch (err) { }
