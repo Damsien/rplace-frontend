@@ -8,6 +8,9 @@
     import { ref, onActivated } from 'vue'
     import router from '@/router';
     import { getAndSetUser } from '@/user';
+    import { usePatternStore } from '@/stores/pattern.js';
+
+    const patternSts = usePatternStore();
 
     const userSts = useUserStore();
     let kind = 'self';
@@ -40,23 +43,9 @@
 
     });
 
-
     // When document is ready
     $(function () {
         loadHtml();
-        
-        if (kind == 'self') {
-            if (!userSts.user.group) {
-                http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/groups`, {
-                    headers: HEADERS,
-                    method: 'GET'
-                }).then((res) => {
-                    for (let group of res.data) {
-                        $('#grp-name').append(`<option value="${group.name}">${group.name}</option>`);
-                    }
-                });
-            }
-        }
     });
 
     function loadHtml() {
@@ -120,6 +109,21 @@
         }
 
 
+        /*      LINK GROUP      */
+        if (kind == 'self') {
+            if (!userSts.user.group || userSts.user.group == '') {
+                http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/groups`, {
+                    headers: HEADERS,
+                    method: 'GET'
+                }).then((res) => {
+                    $('#grp-name').empty();
+                    $('#grp-name').append(`<option disabled selected>Group</option>`);
+                    for (let group of res.data) {
+                        $('#grp-name').append(`<option value="${group.name}">${group.name}</option>`);
+                    }
+                });
+            }
+        }
 
     }
 
@@ -142,7 +146,11 @@
     }
 
     function goBack() {
-        router.go(-1);
+        if (patternSts.isPatternSet === false) {
+            router.push('/')
+        } else {
+            router.go(-1);
+        }
     }
 
 </script>

@@ -15,10 +15,10 @@ http.interceptors.request.use(function (config) {
 http.interceptors.response.use(undefined, async function (err) {
 
   if (err.response.status == 401) {
-    localStorage.removeItem('ACCESS_TOKEN');
-    localStorage.removeItem('REFRESH_TOKEN');
     if(!await refreshToken()) {
       // router.push('/login?redirect=401');
+      localStorage.removeItem('ACCESS_TOKEN');
+      localStorage.removeItem('REFRESH_TOKEN');
       if (err.config.url.includes('login')) {
         router.push('/login?redirect=bad_cred');
       } else {

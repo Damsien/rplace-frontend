@@ -1,9 +1,16 @@
 
 <script setup lang='ts'>
 import router from '@/router/index';
+import { usePatternStore } from '@/stores/pattern.js';
 
+    const patternSts = usePatternStore();
+    
     function goBack() {
-        router.go(-1);
+        if (patternSts.isPatternSet === false) {
+            router.push('/')
+        } else {
+            router.go(-1);
+        }
     }
 
 </script>

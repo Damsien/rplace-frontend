@@ -15,7 +15,7 @@
     var ctx: CanvasRenderingContext2D;
     var selector: {x: number, y: number};
     var colorSelected: string = 'none';
-    var isFree = true;
+    var isFree = false;
     const colorsSts = useColorsStore();
     const pixelSts = usePixelStore();
     const mapSts = useMapStore();
@@ -132,7 +132,8 @@
                 colorsSts.addColor({
                     name: color.name,
                     // @ts-ignore
-                    hex: color.hex
+                    hex: color.hex,
+                    isColorUser: false
                 });
             }
 
@@ -200,9 +201,9 @@
         });
 
 
-        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+        // if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             isFree = false;
-        }
+        // }
         // PIXEL SELECTION
         canvas.addEventListener('mousemove', function(e) {
             if(!isPanning && isFree) {
@@ -218,15 +219,15 @@
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
             if(!isPanning) {
-                if(isFree) {
-                    isFree = false;
+                // if(isFree) {
+                //     isFree = false;
+                //     setSelector(x, y);
+                // } else {
                     setSelector(x, y);
-                } else {
-                    setSelector(x, y);
-                    if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
-                        isFree = true;
-                    }
-                }
+                //     if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
+                //         isFree = true;
+                //     }
+                // }
             }
         };
         canvas.addEventListener('pointerup', function(e) {
