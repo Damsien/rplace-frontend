@@ -188,7 +188,7 @@
                             <form @submit.prevent="linkGroup" v-if="userSts.user.group == null" class="text-start">
                                 <select id="grp-name" name="name" class="w-50 me-1">
                                 </select>
-                                <button type="submit" class="btn btn-outline-primary w-25 p-0 mb-1">Link</button>
+                                <button type="submit" class="btn btn-outline-primary w-25 p-0 mb-1">Select</button>
                             </form>
                             <p class="float-start mb-0" id="group">{{userSts.user.group}}</p>
                         </div>
