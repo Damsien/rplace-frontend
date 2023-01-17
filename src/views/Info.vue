@@ -23,93 +23,88 @@ import { usePatternStore } from '@/stores/pattern.js';
         <div id="info" class="container">
             <h2 class="text-center">Informations</h2>
             <br>
-            <h3>What is the project</h3>
+            <h3>What is the project?</h3>
             <p>
                 The project is managed by the BDA of the ENSEEIHT.
             </p>
             <img id="bda-img" alt="BDA of the ENSEEIHT" src="/src/assets/bda.png">
-            <br>
+            <br><br>
             <h3>Game mechanics</h3><br>
                 <h4>Group</h4>
                 <p>
                     You can select a group on your profile. 
-                    When you place a pixel, it will increase the number of pixels of your group. 
-                </p><br>
+                    When you place a pixel, it increases the number of pixels of your group. 
+                </p>
                 <p>
                     If you want to create a group, first make sure that the group does not already exist. 
-                    It is best if you join the group of your list or of a club you belong to. 
+                    The best way is to join the group on your list or a club you belong to. 
                     Otherwise, you can contact us in the section below. 
-                </p><br>
+                </p>
                 <h4>Canvas</h4>
                 <p>
-                    A canva can help you and your team mates to draw the perfect pixel art. 
-                    If someone sent you a canva link and you clicked on it, it will be saved in your list of canvas. 
-                    So you can apply it on the map at any time by clicking on the name of the canva. 
-                    You can not apply multiple canvas at the same time but you can have have multiple canvas in your lists. 
-                    You can remove the display of the canva on the map by clicking on the little broom on the right of the "Place pixel" button. 
-                </p><br>
+                    A canvas can help you and your teammates to draw the perfect pixel art. 
+                    If someone sent you a link to a canvas and you clicked on it, it will be saved in your canvas list. 
+                    You can then apply it to the map at any time by clicking on the canvas name. 
+                    You cannot apply multiple canvases at the same time but you can have multiple canvases in your lists. 
+                    You can remove the canvas from the map by clicking on the small broom to the right of the "Place Pixel" button. 
+                </p>
                 <p>
-                    You can create a canva and name it has you want. Your canva is saved everytime you place a pixel. 
-                    On your desktop, you can draw quickly using the keys arrow and the Enter button (be carreful if you are to quick, some pixels may have not be saved, so recheck after finishing your canva). 
-                    If you make some modifications after sharing your canva, people who have save it must clear the canva on the map and re-apply it from the list. 
-                </p><br>
+                    You can create a canvas and name it whatever you want. Your canvas is saved every time you place a pixel. 
+                    On your desktop, you can draw quickly using the arrow keys and the Enter button (be careful if you are too fast, some pixels may not be saved, so check again after you finish your canvas). 
+                    If you make changes after sharing your canvas, the people who saved it must clear the canvas from the map and reapply it from the list. 
+                </p>
                 <p>
-                    You can edit your canva after created it by clicking on the pencil icon. 
-                    You can share a canva by clicking on the share icon. 
-                    You can remove a canva from your <strong>Registered canva list</strong> by clicking on the trash icon. 
-                    If you click on the trash icon on a canva you created (in the <strong>Your canvas</strong> list), it will delete your canva from your list and from the <strong>Registered canvas</strong> list of everyone who saved your canva. 
+                    You can edit your canvas after created it by clicking on the pencil icon. 
+                    You can share a canvas by clicking on the share icon. 
+                    You can remove a canvas from your <strong>Registered canvases</strong> list by clicking on the trash icon. 
+                    If you click on the trash icon on a canvas you have created (in the <strong>Your canvases</strong> list), your canvas will be removed from your list and from the list of <strong>Registered canvases</strong> of all people who have saved your canvas. 
                 </p>
                 <h4>Bonus</h4>
                 <ul class="list-group">
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <img width="40px" height="40px" src="'/assets/profile/timer.svg'"/>
-                            <p>Timer</p>
+                            <img width="40px" height="40px" src="/src/assets/profile/timer.svg"/>
+                            <h5 class="mt-2">Timer</h5>
                         </div>
-                        <br>
                         <p>
-                            When unlock, your timer will be decreased.
+                            Once unlocked, your timer will be decreased.
                         </p>
                     </li>
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <img width="40px" height="40px" src="'/assets/profile/color.svg'"/>
-                            <p>Colors</p>
+                            <img width="40px" height="40px" src="/src/assets/profile/color.svg"/>
+                            <h5 class="mt-2">Colors</h5>
                         </div>
-                        <br>
                         <p>
-                            When unlock, you will get new colors. 
+                            Once unlocked, you will get new colors. 
                             Only you and the people who unlock the same step will be able to use them. 
-                            You can not use these colors to create a canva. 
+                            You can not use these colors to create a canvas. 
                         </p>
                     </li>
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <img width="40px" height="40px" src="'/assets/profile/perm-pixel.svg'"/>
-                            <p>Permanent pixels</p>
+                            <img width="40px" height="40px" src="/src/assets/profile/perm-pixel.svg"/>
+                            <h5 class="mt-2">Permanent pixels</h5>
                         </div>
-                        <br>
                         <p>
-                            When unlock, you can use your permanents pixels by checking the square on the left of the place button. 
-                            If the checkbox is yellow, you can see how many permanent pixels are remaining and you can place them by clicking the button.
+                            Once unlocked, you can use your permanents pixels by checking the box on the left of the place button. 
+                            If the checkbox is yellow, you can see how many permanent pixels you have left and you can place them by clicking on the button.
                         </p>
-                        <br>
                         <p>
-                            A normal pixel can not replace a permanent pixel but a permanent pixel can replace another one. 
-                            You can see if the selected pixel on the map is permanent with the color of the box on the top. 
-                            If the color of the border is red, this is a permanent pixel and the button to place a normal pixel is gray. 
-                            If you have some permanents and you check the square, the button appears in blue and you can replace the permanent pixel by yours.
+                            A normal pixel cannot replace a permanent pixel but a permanent pixel can replace another one. 
+                            You can see if the selected pixel on the map is permanent by the color of the box at the top. 
+                            If the border color is red, this is a permanent pixel and the button to place a normal pixel is gray. 
+                            If you have some permanents and you check the box, the button appears in blue and you can replace the permanent pixel with your own.
                         </p>
                     </li>
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <img width="40px" height="40px" src="'/assets/profile/gold-name.svg'"/>
-                            <p>Gold username</p>
+                            <img width="40px" height="40px" src="/src/assets/profile/gold-name.svg"/>
+                            <h5 class="mt-2">Gold username</h5>
                         </div>
-                        <br>
                         <p>
-                            When unlock, your name will shine in a gold like color. 
-                            People will be able to see your new username color on your profile and every pixels you placed. 
+                            Once unlock, your name will glow with a golden color. 
+                            People will be able to see the color of your new username on your profile and on all the pixels you have placed. 
                         </p>
                     </li>
                 </ul><br>
@@ -117,32 +112,30 @@ import { usePatternStore } from '@/stores/pattern.js';
                 <ul class="list-group">
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <img width="40px" height="40px" src="'/assets/profile/timer.svg'"/>
-                            <p>Timer</p>
+                            <img width="40px" height="40px" src="/src/assets/profile/timer.svg"/>
+                            <h5 class="mt-2">Timer</h5>
                         </div>
-                        <br>
                         <p>
-                            The timer event can be triggered by the game himself at anytime to decrease or increase the timer of everyone at the same moment. 
+                            The timer event can be triggered by the game itself at any time to decrease or increase everyone's timer at the same time. 
                         </p>
                     </li>
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <img width="40px" height="40px" src="'/assets/profile/color.svg'"/>
-                            <p>Colors</p>
+                            <img width="40px" height="40px" src="/src/assets/profile/color.svg"/>
+                            <h5 class="mt-2">Colors</h5>
                         </div>
-                        <br>
                         <p>
-                            The color event can be triggered by the game himself at anytime to add or remove some colors for everyone at the same moment. 
-                            The added colors will be usable on the canva creation. The removed colors will not be longer usable on the canva creation. 
+                            The color event can be triggered by the game itself at any time to add or remove colors for everyone at the same time. 
+                            The added colors will be usable on the canvas creation. Removed colors will not be usable on the canvas creation. 
                         </p>
                     </li>
                     <li class="list-group-item">
                         <div class="d-flex">
-                            <p>Increase the map size</p>
+                            <img width="30px" height="30px" class="ms-2 me-1" src="/src/assets/increase-map.svg"/>
+                            <h5 class="mt-1">Increase the map size</h5>
                         </div>
-                        <br>
                         <p>
-                            The map size can be increased by the game himself at anytime.
+                            The size of the map can be increased by the game itself at any time. 
                         </p>
                     </li>
                 </ul>
@@ -157,7 +150,7 @@ import { usePatternStore } from '@/stores/pattern.js';
                 <li class="list-group-item"><a href="https://m.me/theo.valle.3" target="_blank">Theodor Vallier</a></li>
                 <li class="list-group-item"><a href="https://m.me/Dami1Da" target="_blank">Diego Barragan</a></li>
                 <li class="list-group-item"><a href="https://m.me/victor.mrt.77" target="_blank">Victor Marti</a></li>
-            </ul>
+            </ul><br>
             <p>
                 This website was created by Damien Dassieu. It is hosted by Net7.
             </p>

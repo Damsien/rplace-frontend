@@ -6,6 +6,7 @@
     import { usePixelStore } from '@/stores/pixel.js';
     import { useUserStore } from '@/stores/user.js';
     import { usePatternStore } from '@/stores/pattern.js';
+    import { Modal } from 'bootstrap';
     import axios from 'axios';
     import $, { map } from 'jquery';
     import { refreshToken } from '@/auth.js';
@@ -22,7 +23,7 @@
     const pixelSts = usePixelStore();
     const userSts = useUserStore();
     const patternSts = usePatternStore();
-    var selector: {x: number, y: number};
+    var selector: {x: number, y: number} = {x: 0, y: 0};
     var colorSelected: string = 'none';
     var isFree = false;
     var lastPixelPlaced: Date;
@@ -244,12 +245,14 @@
                 pixels.forEach(pixel => {
                     setMapPixel(pixel);
                 });
+                $('#liveToast').show();
             }
             if (game.timer) {
                 console.log(game.timer)
                 console.log(timerSts.timer+(game.timer))
                 timerSts.setTimer(timerSts.timer+(game.timer));
                 $('#bonus-event').html(`New timer : ${parseInt(timerSts.timer.toFixed())-1}s`);
+                $('#liveToast').show();
             }
             if (game.colors) {
                 colorsSts.clearColorsGame()
@@ -257,8 +260,17 @@
                     colorsSts.addColorGame({name: color.name, hex: color.hex, isColorUser: false});
                 }
                 $('#bonus-event').html(`Got new colors !`);
+                $('#liveToast').show();
             }
-            $('#liveToast').show();
+            if(game.stop) {
+                $('#favorite-color').css('background-color', userSts.user.favColor);
+                // $('#game-over').modal({
+                //     backdrop: 'static',
+                //     keyboard: false
+                // })
+                const modal = new Modal(document.getElementById('game-over') ?? '', {});
+                modal.show();
+            }
         });
     }
 
@@ -399,21 +411,14 @@
         function clickEvent(e: MouseEvent) {
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
+            console.log('x : ' + x)
+            console.log('y : ' + y)
+            console.log(isPanning);
             if(!isPanning) {
                 $('#timer-box').css('border-color', '#3A3A3A');
-                if(isFree) {
-                    isFree = false;
-                    setSelector(x, y);
-                    displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
-                } else {
-                    pixelSts.setUser('');
-                    setSelector(x, y);
-                    // if(! (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) ) {
-                        // isFree = true;
-                    // } else {
-                    displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
-                    // }
-                }
+                // pixelSts.setUser('');
+                setSelector(x, y);
+                displaySticked(pixelSts.pixel.coord_x, pixelSts.pixel.coord_y);
             }
         }
         canvas.addEventListener('pointerup', function(e) {
@@ -663,6 +668,28 @@
 
 <template>
 
+    <div id="game-over" class="modal fade" href="#" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">The game is over !</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your rank is #{{ userSts.user.rank }} ✨</p>
+                    <p v-if="userSts.user.groupRank" >Your group rank {{userSts.user.groupRank}} 🔥</p>
+                    <p>You have placed {{userSts.user.pixelsPlaced}} pixels 🎉</p>
+                    <p v-if="userSts.user.stickedPixels > 0">You have {{userSts.user.stickedPixels}} permanent pixels left 🥲</p>
+                    <p>You have reached step number {{userSts.user.steps.length}} 🥵</p>
+                    <p style="display: inline-block">Your favorite color is</p>
+                    <div class="fav-col" id="favorite-color"></div>
+                    <br>
+                    <p>Thank you for your participation. The statistics will be available soon.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
@@ -750,6 +777,14 @@
 </template>
 
 <style scoped>
+
+.fav-col {
+    display: inline-block;
+    margin: auto;
+    margin-left: 3px;
+    width: 12px;
+    height: 12px;
+}
 
 
 input[type="checkbox"] {

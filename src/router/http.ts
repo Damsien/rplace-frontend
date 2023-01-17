@@ -34,6 +34,10 @@ http.interceptors.response.use(undefined, async function (err) {
     localStorage.removeItem('REFRESH_TOKEN');
     router.push('/login?redirect=forbidden');
   }
+
+  if (err.response.status >= 500 || err.response.status == 410) {
+    router.go();
+  }
 });
 
 export default http;

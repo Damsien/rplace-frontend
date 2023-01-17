@@ -125,7 +125,7 @@ function goBack() {
             <span class="col-2"></span>
         </div>
         <br />
-        <h3 id="self-h2" v-if="patternsSts.self.length != 0">Your canvas</h3>
+        <h3 id="self-h2" v-if="patternsSts.self.length != 0">Your canvases</h3>
         <ul class="list-group" v-if="patternsSts.self.length != 0">
             <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" v-for="pattern in patternsSts.self" :key="pattern.patternId" :id="'pattern/'+pattern.patternId">
                 <router-link :to="'/canva/'+pattern.patternId" class="fw-bold">{{ pattern.name }}</router-link>
@@ -139,7 +139,7 @@ function goBack() {
             </li>
         </ul>
         <br />
-        <h3 id="bind-h2" v-if="patternsSts.bind.length != 0">Registered canvas</h3>
+        <h3 id="bind-h2" v-if="patternsSts.bind.length != 0">Registered canvases</h3>
         <ul class="list-group" v-if="patternsSts.bind.length != 0">
             <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" v-for="pattern in patternsSts.bind" :key="pattern.patternId" :id="'pattern/'+pattern.patternId">
                 <router-link :to="'/canva/'+pattern.patternId" class="fw-bold">{{ pattern.name }}</router-link>
@@ -150,7 +150,7 @@ function goBack() {
             </li>
         </ul>
         <br />
-        <h4>Create new canva</h4>
+        <h4>Create new canvas</h4>
         <form @submit.prevent="createPattern">
             <div class="mb-3">
                 <label for="name" class="form-label">Pattern name</label>
