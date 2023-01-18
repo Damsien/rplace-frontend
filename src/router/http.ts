@@ -30,13 +30,17 @@ http.interceptors.response.use(undefined, async function (err) {
   }
 
   if (err.response.status == 403) {
-    localStorage.removeItem('ACCESS_TOKEN');
-    localStorage.removeItem('REFRESH_TOKEN');
+    // localStorage.removeItem('ACCESS_TOKEN');
+    // localStorage.removeItem('REFRESH_TOKEN');
     router.push('/login?redirect=forbidden');
   }
 
-  if (err.response.status >= 500 || err.response.status == 410) {
+  if (err.response.status == 410) {
     router.go();
+  }
+
+  if (err.response.status >= 500) {
+    router.push(`/server-error/${err.response.status}?req_url=${err.config.url}&req_params=${err.config.data}&res=${err.request.response}`);
   }
 });
 

@@ -27,6 +27,15 @@ onActivated(() => {
     }).then(res => {
         patternsSts.setPatterns(res.data);
     });
+
+    http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game-state`, {
+        headers: HEADERS,
+        method: 'GET',
+    }).then(res => {
+        if (res.data.state == 'Occurs') {
+            $('#create-canvas').removeClass('display-none');
+        }
+    });
 });
 
 function onLink(e: any | Event) {
@@ -150,14 +159,16 @@ function goBack() {
             </li>
         </ul>
         <br />
-        <h4>Create new canvas</h4>
-        <form @submit.prevent="createPattern">
-            <div class="mb-3">
-                <label for="name" class="form-label">Pattern name</label>
-                <input type="text" class="form-control" id="name" name="name">
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
+        <div id="create-canvas" class="display-none">
+            <h4>Create new canvas</h4>
+            <form @submit.prevent="createPattern">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Pattern name</label>
+                    <input type="text" class="form-control" id="name" name="name">
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        </div>
     </div>
     
 </template>

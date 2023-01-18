@@ -39,6 +39,10 @@ p, h1, h2, h3, h4, h5, .text-center, label, button {
   cursor: pointer;
 }
 
+.display-none {
+  display: none !important;
+}
+
 /* a,
 .green {
   text-decoration: none;

@@ -41,6 +41,16 @@
 
         });
 
+
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game-state`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+            if (res.data.state == 'Occurs') {
+                $('#group-form').removeClass('display-none');
+            }
+        });
+
     });
 
     // When document is ready
@@ -185,7 +195,7 @@
                         <div class="text-imp col-6"><p class="float-start mb-0" id="school"></p></div>
                         <div class="col-6 pe-0"><p id="group-html1" class="float-end mt-1 mb-0">Group: </p></div>
                         <div class="text-imp col-6" id="group-html2">
-                            <form @submit.prevent="linkGroup" v-if="userSts.user.group == null" class="text-start">
+                            <form id="group-form" @submit.prevent="linkGroup" v-if="userSts.user.group == null" class="text-start display-none">
                                 <select id="grp-name" name="name" class="w-50 me-1">
                                 </select>
                                 <button type="submit" class="btn btn-outline-primary w-25 p-0 mb-1">Select</button>

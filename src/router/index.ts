@@ -11,6 +11,8 @@ import Pattern from '../views/Pattern.vue';
 import PatternList from '../views/PatternList.vue';
 // @ts-ignore
 import Info from '../views/Info.vue';
+// @ts-ignore
+import ServerError from '../views/ServerError.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,6 +66,11 @@ const router = createRouter({
       name: 'info',
       component: Info
     },
+    {
+      path: '/server-error/:id',
+      name: 'backend-error',
+      component: ServerError
+    }
     // {
     //   path: '/canva/:id',
     //   name: 'canva',

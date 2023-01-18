@@ -154,6 +154,16 @@
             getCurrentPattern();
             
         });
+
+
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game-state`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+            if (res.data.state == 'Occurs') {
+                $('#select-pixel').removeClass('display-none');
+            }
+        });
     });
 
     $(function() {
@@ -359,7 +369,7 @@
         x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
         </div>
     </div>
-    <div id="select-pixel" class="box-for-content">
+    <div id="select-pixel" class="box-for-content display-none">
         <div id="select-color-container">
             <div v-for="color in colorsSts.colors" :key="color.name">
                 <div :id="`select-${color.name}`" class="select-color"

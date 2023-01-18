@@ -248,8 +248,6 @@
                 $('#liveToast').show();
             }
             if (game.timer) {
-                console.log(game.timer)
-                console.log(timerSts.timer+(game.timer))
                 timerSts.setTimer(timerSts.timer+(game.timer));
                 $('#bonus-event').html(`New timer : ${parseInt(timerSts.timer.toFixed())-1}s`);
                 $('#liveToast').show();
@@ -263,15 +261,23 @@
                 $('#liveToast').show();
             }
             if(game.stop) {
-                $('#favorite-color').css('background-color', userSts.user.favColor);
-                // $('#game-over').modal({
-                //     backdrop: 'static',
-                //     keyboard: false
-                // })
-                const modal = new Modal(document.getElementById('game-over') ?? '', {});
-                modal.show();
+                getAndSetUser(`${window.env.VITE_APP_BACKEND_API_URL}/user/spec`).then(val => {
+                    $('#favorite-color').css('background-color', userSts.user.favColor);
+                    // $('#game-over').modal({
+                    //     backdrop: 'static',
+                    //     keyboard: false
+                    // })
+                    const modal = new Modal(document.getElementById('game-over') ?? '', {});
+                    modal.show();
+                    $('#game-ready').addClass('display-none');
+                    $('#select-color-container').addClass('display-none');
+                });
             }
         });
+    }
+
+    function modalClosed() {
+        router.go();
     }
 
 
@@ -297,6 +303,15 @@
             checkStickedPixels(userSts.user.stickedPixels, pixelSts.pixel.isSticked)
         });
 
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game-state`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+            if (res.data.state == 'Occurs') {
+                $('#game-ready').removeClass('display-none');
+                $('#select-color-container').removeClass('display-none');
+            }
+        });
 
         mountedState = false;
     })
@@ -411,9 +426,6 @@
         function clickEvent(e: MouseEvent) {
             let x = e.offsetX-(e.offsetX%10);
             let y = e.offsetY-(e.offsetY%10);
-            console.log('x : ' + x)
-            console.log('y : ' + y)
-            console.log(isPanning);
             if(!isPanning) {
                 $('#timer-box').css('border-color', '#3A3A3A');
                 // pixelSts.setUser('');
@@ -673,7 +685,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">The game is over !</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="modalClosed"></button>
                 </div>
                 <div class="modal-body">
                     <p>Your rank is #{{ userSts.user.rank }} ✨</p>
@@ -727,7 +739,7 @@
         </div>
     </div>
     <div id="select-pixel" class="box-for-content">
-        <div id="select-color-container">
+        <div id="select-color-container" class="display-none">
             <div v-for="color in colorsSts.colors" :key="color.name">
                 <div :id="`select-${color.name}`" class="select-color"
                 :style="{background: color.hex}" :title="color.name"
@@ -738,14 +750,16 @@
         <div>
             <div class="dropdown mt-2">
                 <form @submit.prevent="placePixelClick">
-                    <div id="perm-checkbox-input" class="d-inline-block me-2" style="top: 5px;">
-                        <input type="checkbox" id="perm-checkbox" @change="permCheck" />
-                        <label title="Set permanent pixel" for="perm-checkbox" class="square-checkbox cursor-pointer"></label>
+                    <div id="game-ready" class="display-none">
+                        <div id="perm-checkbox-input" class="d-inline-block me-2" style="top: 5px;">
+                            <input type="checkbox" id="perm-checkbox" @change="permCheck" />
+                            <label title="Set permanent pixel" for="perm-checkbox" class="square-checkbox cursor-pointer"></label>
+                        </div>
+                        <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">
+                            <p id="place-pixel-text" class="text-white mb-0">Place pixel</p>
+                            <p id="place-perm-pixel-text" class="display-none text-white mb-0">{{userSts.user.stickedPixels}} permanent</p>
+                        </button>
                     </div>
-                    <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">
-                        <p id="place-pixel-text" class="text-white mb-0">Place pixel</p>
-                        <p id="place-perm-pixel-text" class="display-none text-white mb-0">{{userSts.user.stickedPixels}} permanent</p>
-                    </button>
                     <!-- <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg> -->
                     <svg fill="#000000" class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                         viewBox="0 0 457.756 457.756" xml:space="preserve">
@@ -806,10 +820,6 @@ input[type="checkbox"]:checked + label.square-checkbox {
 .gold-user {
     color: #f1b901;
     text-shadow: 0 0 0.5px rgb(63, 63, 63);
-}
-
-.display-none {
-  display: none !important;
 }
 
 .disabled{

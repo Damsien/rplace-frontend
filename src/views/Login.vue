@@ -92,12 +92,16 @@
                     },
                     method: 'GET'
                 }).then(res => {
-                    userSts.setPscope(pscope);
-                    userSts.setUsername(username);
-                    const beforeLog = localStorage.getItem('before-log') ?? '';
-                    // localStorage.removeItem('before-log');
-                    router.go();
-                    router.push(`/?link=${beforeLog}&login=true`);
+                    if (res.data.state == 'Occurs' || res.data.state == 'Over') {
+                        userSts.setPscope(pscope);
+                        userSts.setUsername(username);
+                        const beforeLog = localStorage.getItem('before-log') ?? '';
+                        // localStorage.removeItem('before-log');
+                        router.go();
+                        router.push(`/?link=${beforeLog}&login=true`);
+                    } else {
+                        router.push('/login?redirect=forbidden');
+                    }
                 });
             } catch (err) { }
         });
