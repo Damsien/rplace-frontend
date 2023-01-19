@@ -28,6 +28,7 @@
     var isFree = false;
     var lastPixelPlaced: Date;
     var perm = false;
+    var isGameStopped = true;
 
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
@@ -170,7 +171,9 @@
             $('#place-pixel').addClass('btn-secondary');
             $('#place-pixel').removeClass('btn-primary');
             if (pxl > 0) {
-                $('#perm-checkbox-input').removeClass('display-none');
+                if (isGameStopped == false) {
+                    $('#perm-checkbox-input').removeClass('display-none');
+                }
                 if ($('#perm-checkbox').is(':checked')) {
                     $('#place-pixel').removeClass('btn-secondary');
                     $('#place-pixel').addClass('btn-primary');
@@ -180,7 +183,9 @@
             }
         } else {
             if (pxl > 0) {
-                $('#perm-checkbox-input').removeClass('display-none');
+                if (isGameStopped == false) {
+                    $('#perm-checkbox-input').removeClass('display-none');
+                }
             } else {
                 $('#perm-checkbox-input').addClass('display-none');
             }
@@ -263,6 +268,7 @@
             }
             if(game.stop) {
                 getAndSetUser(`${window.env.VITE_APP_BACKEND_API_URL}/user/spec`).then(val => {
+                    isGameStopped = true;
                     $('#favorite-color').css('background-color', userSts.user.favColor);
                     // $('#game-over').modal({
                     //     backdrop: 'static',
@@ -270,7 +276,8 @@
                     // })
                     const modal = new Modal(document.getElementById('game-over') ?? '', {});
                     modal.show();
-                    $('#game-ready').addClass('display-none');
+                    $('#perm-checkbox-input').addClass('display-none');
+                    $('#place-pixel').addClass('display-none');
                     $('#select-color-container').addClass('display-none');
                 });
             }
@@ -309,7 +316,8 @@
             method: 'GET',
         }).then(res => {
             if (res.data.state == 'Occurs') {
-                $('#game-ready').removeClass('display-none');
+                $('#perm-checkbox-input').removeClass('display-none');
+                $('#place-pixel').removeClass('display-none');
                 $('#select-color-container').removeClass('display-none');
             }
         });
@@ -751,16 +759,14 @@
         <div>
             <div class="dropdown mt-2">
                 <form @submit.prevent="placePixelClick">
-                    <div id="game-ready" class="display-none">
-                        <div id="perm-checkbox-input" class="d-inline-block me-2" style="top: 5px;">
-                            <input type="checkbox" id="perm-checkbox" @change="permCheck" />
-                            <label title="Set permanent pixel" for="perm-checkbox" class="square-checkbox cursor-pointer"></label>
-                        </div>
-                        <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">
-                            <p id="place-pixel-text" class="text-white mb-0">Place pixel</p>
-                            <p id="place-perm-pixel-text" class="display-none text-white mb-0">{{userSts.user.stickedPixels}} permanent</p>
-                        </button>
+                    <div id="perm-checkbox-input" class="d-inline-block me-2 display-none" style="top: 5px;">
+                        <input type="checkbox" id="perm-checkbox" @change="permCheck" />
+                        <label title="Set permanent pixel" for="perm-checkbox" class="square-checkbox cursor-pointer"></label>
                     </div>
+                    <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0 display-none">
+                        <p id="place-pixel-text" class="text-white mb-0">Place pixel</p>
+                        <p id="place-perm-pixel-text" class="display-none text-white mb-0">{{userSts.user.stickedPixels}} permanent</p>
+                    </button>
                     <!-- <svg class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="30px" height="30px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"><rect width="254.840248" height="254.840248" rx="0" ry="0" transform="matrix(.813624 0 0 0.813623 46.327929 46.328056)" fill="none" stroke="#000" stroke-width="20"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 19.922495 243.041471)" fill="#fcfcfc" stroke-width="0"/><rect width="49.36256" height="49.36256" rx="0" ry="0" transform="matrix(.730833-.682556 0.682556 0.730833 207.901175 56.927621)" fill="#fcfcfc" stroke-width="0"/><rect width="277.730091" height="22.126848" rx="0" ry="0" transform="matrix(.91938-.912865 0.704588 0.709616 14.535153 268.914301)" fill="#fd1111" stroke-width="0"/></svg> -->
                     <svg fill="#000000" class="ms-2 cursor-pointer" v-if="patternSts.isPatternSet" @click="unsetPatternMap" width="22px" height="22px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                         viewBox="0 0 457.756 457.756" xml:space="preserve">
