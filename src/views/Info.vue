@@ -29,6 +29,13 @@ import { usePatternStore } from '@/stores/pattern.js';
             </p>
             <img id="bda-img" alt="BDA of the ENSEEIHT" src="/src/assets/bda.png">
             <br><br>
+            <h3>Install application</h3><br>
+            <p>
+                You can play in a browser but the game is also installable. 
+                To install the game on your phone, you need to open your browser options and click on "Install Application" or "Add to Home Screen". 
+                More details here: <a target="_blank" href="https://www.cdc.gov/niosh/mining/content/hearingloss/installPWA.html">Install app documentation</a>
+            </p>
+            <br>
             <h3>Game mechanics</h3><br>
                 <h4>Group</h4>
                 <p>
@@ -138,7 +145,11 @@ import { usePatternStore } from '@/stores/pattern.js';
                             The size of the map can be increased by the game itself at any time. 
                         </p>
                     </li>
-                </ul>
+                </ul><br>
+                <h4>Game stop</h4>
+                <p>
+                    The game will be stopped within an hour announced by the organizing team. 
+                </p>
             <br>
             <br>
             <h3>Contact</h3>
