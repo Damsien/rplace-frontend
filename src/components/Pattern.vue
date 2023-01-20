@@ -463,7 +463,7 @@
 }
 
 #select-pixel {
-    top: 92%;
+    top: 88%;
     border: solid 1px black;
 }
 
