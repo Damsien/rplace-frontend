@@ -3,7 +3,7 @@
     import panzoom from 'panzoom';
     import axios from 'axios';
     import { useColorsStore } from '@/stores/colors.js';
-    import { usePixelStore } from '@/stores/pixel';
+    import { usePixelStore, type Pixel } from '@/stores/pixel';
     import { refreshToken } from '@/auth.js';
     import router from '@/router/index';
     import http from '@/router/http';
@@ -19,6 +19,9 @@
     const colorsSts = useColorsStore();
     const pixelSts = usePixelStore();
     const mapSts = useMapStore();
+
+    var pattern: Pixel[] = [];
+    var mapToggled: boolean = false;
 
     function rgbToHex(r: number, g: number, b: number) {
         if (r > 255 || g > 255 || b > 255)
@@ -101,8 +104,10 @@
             headers: HEADERS,
             method: 'GET',
         }).then(res => {
-            // @ts-ignore
-            (res.data).forEach(pixel => {
+
+            pattern = [];
+            const patternMap = res.data;
+            patternMap.forEach(pixel => {
                 pixel['coord_x'] -= 1;
                 pixel['coord_y'] -= 1;
                 
@@ -112,8 +117,22 @@
                 
                 ctx.fillStyle = color;
                 ctx.fillRect(x, y, 10, 10);
+
+                pattern.push(pixel);
             });
         });
+    }
+
+    function setWhiteMap() {
+        const width = mapSts.width;
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, width*10, width*10);
+        for(let i=0; i<width; i++) {
+            for(let j=0; j<width; j++) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect((i*10)+4, (j*10)+4, 2, 2);
+            }
+        }
     }
 
     onActivated(() => {
@@ -142,17 +161,24 @@
             mapSts.setWidth(width);
             canvas.width = width * 10;
             canvas.height = width * 10;
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, width*10, width*10);
-            for(let i=0; i<width; i++) {
-                for(let j=0; j<width; j++) {
-                    ctx.fillStyle = 'black';
-                    ctx.fillRect((i*10)+4, (j*10)+4, 2, 2);
-                }
-            }
+            setWhiteMap();
 
             getCurrentPattern();
             
+        });
+
+        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/map`, {
+            headers: HEADERS,
+            method: 'GET',
+        }).then(res => {
+
+            // MAP
+            const width = res.data.width;
+            const map = res.data.map;
+            mapSts.setWidth(width);
+            mapSts.clearMap();
+            mapSts.setMap(map);
+
         });
 
 
@@ -312,7 +338,11 @@
 
                     const x = selector.x;
                     const y = selector.y;
-                    ctx.fillRect(x, y, 10, 10);
+                    if (mapToggled == false) {
+                        ctx.fillRect(x, y, 10, 10);
+                    } else {
+                        ctx.fillRect(x+3, y+3, 4, 4);
+                    }
                     
                     ctx.fillStyle = 'black';
                     ctx.fillRect(x, y, 2, 1);
@@ -323,16 +353,31 @@
                     ctx.fillRect(x+9, y+8, 1, 2);
                     ctx.fillRect(x, y+9, 2, 1);
                     ctx.fillRect(x, y+8, 1, 2);
+
+                    pattern = pattern.filter(obj => obj.coord_x !== pixelSts.pixel.coord_x || obj.coord_y !== pixelSts.pixel.coord_y);
+                    // @ts-ignore
+                    pattern.push({coord_x: pixelSts.pixel.coord_x, coord_y: pixelSts.pixel.coord_y, color: colorSelected});
                 }
             });
         }
     }
 
     function setPatternPixel(x: number, y: number) {
-        ctx.fillStyle = 'white';
+        if (mapToggled == false) {
+            ctx.fillStyle = 'white';
+            ctx.fillStyle = 'black';
+            ctx.fillRect(x+4, y+4, 2, 2);
+        } else {
+            const pxl = mapSts.pixels.find(el => el.coord_x == (x+10)/10 && el.coord_y == (y+10)/10);
+            if (pxl === undefined) {
+                ctx.fillStyle = 'white';
+            } else {
+                ctx.fillStyle = pxl['color'];
+            }
+        }
         ctx.fillRect(x, y, 10, 10);
+        
         ctx.fillStyle = 'black';
-        ctx.fillRect(x+4, y+4, 2, 2);
         
         //  Border selector
         ctx.fillRect(x+0, y+0, 1, 2);
@@ -353,8 +398,93 @@
             if (res !== undefined) {
                 // console.log("remove pixel at " + selector.x + " " + selector.y);
                 setPatternPixel(selector.x, selector.y);
+
+                pattern = pattern.filter(obj => obj.coord_x !== pixelSts.pixel.coord_x || obj.coord_y !== pixelSts.pixel.coord_y);
             }
         });
+    }
+
+
+    function toggleMap() {
+        // @ts-ignore
+        ctx = canvas.getContext('2d');
+        setWhiteMap();
+        if (mapToggled == true) {
+            pattern.forEach(pixel => {
+                
+                let x = pixel['coord_x'] * 10;
+                let y = pixel['coord_y'] * 10;
+                let color = pixel['color'];
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 10, 10);
+
+                checkSelector(x, y);
+            });
+            
+            mapToggled = false;
+        } else {
+            setMap(mapSts.width, mapSts.pixels);
+            
+            mapToggled = true;
+        }
+    }
+    
+    function setMap(width: number, map: [] | any[]) {
+        canvas.width = width * 10;
+        canvas.height = width * 10;
+
+        placeAllPixels(map);
+    }
+    
+    function placeAllPixels(map: [] | any[]) {
+        map.forEach(pixel => {
+            pixel['coord_x'] -= 1;
+            pixel['coord_y'] -= 1;
+            setMapPixel(pixel);
+            pixel['coord_x'] += 1;
+            pixel['coord_y'] += 1;
+        });
+    }
+
+    function checkSelector(x: number, y: number) {
+        if (selector !== undefined && selector.x == x && selector.y == y) {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(x, y, 2, 1);
+            ctx.fillRect(x, y, 1, 2);
+            ctx.fillRect(x+8, y, 2, 1);
+            ctx.fillRect(x+9, y, 1, 2);
+            ctx.fillRect(x+8, y+9, 2, 1);
+            ctx.fillRect(x+9, y+8, 1, 2);
+            ctx.fillRect(x, y+9, 2, 1);
+            ctx.fillRect(x, y+8, 1, 2);
+        }
+    }
+
+    function setMapPixel(pixel: any) {
+        let x = pixel['coord_x'] * 10;
+        let y = pixel['coord_y'] * 10;
+        let color = pixel['color'];
+        
+        if (pixel.entityId != undefined) {
+            if (pixel.entityId.split('-')[0]-1 != pixel.coord_x || pixel.entityId.split('-')[1]-1 != pixel.coord_y) {
+                return;
+            }
+        }
+
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 10, 10);
+        let foundPatternPixel = pattern.find((el) => el['coord_x'] == x/10 && el['coord_y'] == y/10);
+        if (foundPatternPixel !== undefined) {
+            ctx.fillStyle = foundPatternPixel['color'];
+            // ctx.fillRect(x, y, 3, 10);
+            // ctx.fillRect(x, y, 10, 3);
+            // ctx.fillRect(x+7, y, 3, 10);
+            // ctx.fillRect(x, y+7, 10, 3);
+            ctx.fillRect(x+3, y+3, 4, 4);
+        }
+
+        checkSelector(x, y);
     }
 
 </script>
@@ -379,6 +509,10 @@
             </div>
         </div>
         <div>
+            <div>
+                <input type="checkbox" id="perm-checkbox" @change="toggleMap" />
+                <label title="Set permanent pixel" for="perm-checkbox" class="square-checkbox cursor-pointer"></label>
+            </div>
             <div id="button-ctnr" class="dropdown mt-2">
                 <form @submit.prevent="placePixel" class="d-inline-block">
                     <button type="submit" id="place-pixel" class="btn btn-primary mb-0 px-2 pb-1 pt-0">Place pixel</button>
@@ -405,7 +539,6 @@
     top: 5%;
     border: solid 1px black;
 }
-
 .box-for-content {
     position: absolute;
     left: 50%;
