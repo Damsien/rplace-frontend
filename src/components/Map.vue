@@ -122,6 +122,7 @@
             mapSts.setWidth(width);
             mapSts.clearMap();
             mapSts.setMap(map);
+            mapSts.setDateState();
             // $('#parent-canvas').css('transform', `translate(-50%, -50%) scale(${width*0.7/50})`);
 
             // USER INFO

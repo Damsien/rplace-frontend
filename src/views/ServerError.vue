@@ -2,6 +2,8 @@
 
     import router from '@/router/index';
 
+    localStorage.removeItem('before-log');
+
 </script>
 
 <template>

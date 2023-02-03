@@ -13,7 +13,7 @@
     
     var canvas: HTMLCanvasElement;
     var ctx: CanvasRenderingContext2D;
-    var selector: {x: number, y: number};
+    var selector: {x: number, y: number} = {x: 0, y: 0};
     var colorSelected: string = 'none';
     var isFree = false;
     const colorsSts = useColorsStore();
@@ -162,25 +162,28 @@
             canvas.width = width * 10;
             canvas.height = width * 10;
             setWhiteMap();
-
-            getCurrentPattern();
             
         });
 
-        http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/map`, {
-            headers: HEADERS,
-            method: 'GET',
-        }).then(res => {
+        if (mapSts.pixels.length <= 0) {
+            http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game/map`, {
+                headers: HEADERS,
+                method: 'GET',
+            }).then(res => {
 
-            // MAP
-            const width = res.data.width;
-            const map = res.data.map;
-            mapSts.setWidth(width);
-            mapSts.clearMap();
-            mapSts.setMap(map);
-
-        });
-
+                // MAP
+                const width = res.data.width;
+                const map = res.data.map;
+                mapSts.setWidth(width);
+                mapSts.clearMap();
+                mapSts.setMap(map);
+                mapSts.setDateState();
+                
+                getCurrentPattern();
+            });
+        } else {
+            getCurrentPattern();
+        }
 
         http.get(`${window.env.VITE_APP_BACKEND_API_URL}/user/game-state`, {
             headers: HEADERS,
@@ -193,6 +196,7 @@
     });
 
     $(function() {
+
         // PANZOOM
         const instance = panzoom(canvas, {
             minZoom: 1,
@@ -323,8 +327,6 @@
 
     function placePixel() {
         if(colorSelected !== 'none' && selector) {
-            // console.log("place pixel at " + selector.x + " " + selector.y);
-            // console.log(colorSelected);
             http.put(`${window.env.VITE_APP_BACKEND_API_URL}/pattern-shape/place/${router.currentRoute.value.params.id}`, {
                 coord_x: pixelSts.pixel.coord_x,
                 coord_y: pixelSts.pixel.coord_y,
@@ -356,15 +358,16 @@
 
                     pattern = pattern.filter(obj => obj.coord_x !== pixelSts.pixel.coord_x || obj.coord_y !== pixelSts.pixel.coord_y);
                     // @ts-ignore
-                    pattern.push({coord_x: pixelSts.pixel.coord_x, coord_y: pixelSts.pixel.coord_y, color: colorSelected});
+                    pattern.push({coord_x: pixelSts.pixel.coord_x-1, coord_y: pixelSts.pixel.coord_y-1, color: colorsSts.color(colorSelected).hex});
                 }
             });
         }
     }
 
     function setPatternPixel(x: number, y: number) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(x, y, 10, 10);
         if (mapToggled == false) {
-            ctx.fillStyle = 'white';
             ctx.fillStyle = 'black';
             ctx.fillRect(x+4, y+4, 2, 2);
         } else {
@@ -374,8 +377,8 @@
             } else {
                 ctx.fillStyle = pxl['color'];
             }
+            ctx.fillRect(x, y, 10, 10);
         }
-        ctx.fillRect(x, y, 10, 10);
         
         ctx.fillStyle = 'black';
         
@@ -396,10 +399,9 @@
             method: 'DELETE',
         }).then(res => {
             if (res !== undefined) {
-                // console.log("remove pixel at " + selector.x + " " + selector.y);
                 setPatternPixel(selector.x, selector.y);
 
-                pattern = pattern.filter(obj => obj.coord_x !== pixelSts.pixel.coord_x || obj.coord_y !== pixelSts.pixel.coord_y);
+                pattern = pattern.filter(obj => obj.coord_x !== pixelSts.pixel.coord_x-1 || obj.coord_y !== pixelSts.pixel.coord_y-1);
             }
         });
     }
@@ -428,6 +430,7 @@
             
             mapToggled = true;
         }
+        setSelector(selector.x, selector.y);
     }
     
     function setMap(width: number, map: [] | any[]) {
@@ -495,8 +498,22 @@
         <canvas id="place"></canvas>
     </div>
     <div id="timer-box" class="box-for-content">
-        <div class="text-center">
-        x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center">
+                    <!-- Last map state : {{ mapSts.dateState.toLocaleDateString('fr-FR', {hour: '2-digit', minute: '2-digit', second: '2-digit'}) }} -->
+                    Last map state : {{ mapSts.dateState.toLocaleTimeString('fr-FR') }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center">
+                    x: {{pixelSts.pixel.coord_x}} y: {{pixelSts.pixel.coord_y}}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div id="select-pixel" class="box-for-content display-none">

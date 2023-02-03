@@ -1,21 +1,26 @@
 import { defineStore } from 'pinia'
 import type { Pixel } from './pixel';
 
-export type Map = { width: number, pixels: Pixel[] };
+export type Map = { width: number, pixels: Pixel[], dateState: Date };
 
 export const useMapStore = defineStore({
   id: 'map',
   state: () => ({
     _map: {
       width: 0,
-      pixels: []
+      pixels: [],
+      dateState: new Date()
     } as Map
   }),
   getters: {
     width: (state) => state._map.width,
-    pixels: (state) => state._map.pixels
+    pixels: (state) => state._map.pixels,
+    dateState: (state) => state._map.dateState
   },
   actions: {
+    setDateState() {
+      this._map.dateState = new Date();
+    },
     clearMap() {
       for (let i=1; i<this._map.width+1; i++) {
         for (let j=1; j<this._map.width+1; j++) {
