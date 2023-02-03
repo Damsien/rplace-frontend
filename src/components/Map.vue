@@ -889,6 +889,7 @@ input[type="checkbox"]:checked + label.square-checkbox {
     border: solid 2px;
     text-align: center;
     border-color: black;
+    min-width: 200px;
 }
 
 #select-pixel {
