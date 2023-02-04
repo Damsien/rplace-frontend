@@ -502,7 +502,7 @@
             // ctx.fillRect(x, y, 10, 3);
             // ctx.fillRect(x+7, y, 3, 10);
             // ctx.fillRect(x, y+7, 10, 3);
-            ctx.fillRect(x+3, y+3, 4, 4);
+            ctx.fillRect(x, y, 10, 10);
         }
 
         checkSelector(x, y);
