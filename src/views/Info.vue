@@ -159,7 +159,7 @@ import { usePatternStore } from '@/stores/pattern.js';
             <ul class="list-group">
                 <li class="list-group-item"><a href="https://m.me/Dami1Da" target="_blank">Damien Dassieu</a></li>
                 <li class="list-group-item"><a href="https://m.me/theo.valle.3" target="_blank">Theodor Vallier</a></li>
-                <li class="list-group-item"><a href="https://m.me/Dami1Da" target="_blank">Diego Barragan</a></li>
+                <li class="list-group-item"><a href="https://messenger.com/t/100010317902816" target="_blank">Diego Barragan</a></li>
                 <li class="list-group-item"><a href="https://m.me/victor.mrt.77" target="_blank">Victor Marti</a></li>
             </ul><br>
             <p>
